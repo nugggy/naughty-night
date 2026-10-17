@@ -2,7 +2,7 @@
 
 An 18+ party game suite for Android. Strictly for consenting adults.
 
-Ten games: Truth or Dare, Dirty Dice, Spin the Bottle, Never Have I Ever, Strip Trivia, Would You Rather and Dirty Mind, plus an after-dark kink section with Kink Challenges, Yes No Maybe and Power Play.
+Eleven games: Truth or Dare, Dirty Dice, Spin the Bottle, Never Have I Ever, Strip Trivia, Would You Rather and Dirty Mind, plus an after-dark kink section with Kink Challenges, Yes No Maybe, Power Play and Hotwife Roller.
 
 ## Install
 

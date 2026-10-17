@@ -98,6 +98,10 @@ input{flex:1;min-width:0;background:rgba(0,0,0,.3);border:1px solid var(--line);
 .ynm .y{background:#2ecc71;color:#0b2a17}.ynm .m{background:var(--gold);color:#2a0640}.ynm .n{background:var(--hot);color:#fff}
 .list{list-style:none;padding:0;margin:8px 0 16px;display:grid;gap:6px}
 .list li{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:15px}
+.dice4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:4px 0 6px}
+.d10{aspect-ratio:1;border-radius:18px;background:linear-gradient(145deg,#fff1b8,#ffcc4d);color:#2a0640;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:inset 0 -5px 0 rgba(0,0,0,.12),0 6px 16px rgba(255,204,77,.3)}
+.d10 small{font-weight:800;font-size:12px;opacity:.7}
+.d10 b{font-size:34px;font-weight:900;line-height:1}
 .timer{font-size:54px;font-weight:900;text-align:center;color:var(--gold);font-variant-numeric:tabular-nums;margin:6px 0}
 .flash{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);font-size:30px;font-weight:900;color:var(--gold);text-shadow:0 0 20px var(--pink);pointer-events:none;animation:flash 1s forwards;z-index:9;white-space:nowrap}
 @keyframes flash{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}100%{opacity:0;transform:translate(-50%,-90%) scale(1)}}
@@ -152,6 +156,7 @@ const ART = {
   wyr: S('0 0 100 100', `<circle cx="34" cy="50" r="30" fill="#ff2e88"/><circle cx="66" cy="50" r="30" fill="#7b3cff" opacity=".9"/><text x="50" y="58" font-size="22" font-weight="900" text-anchor="middle" fill="#fff" font-family="Georgia,serif" font-style="italic">or</text>`),
   mask: S('0 0 100 100', `<path d="M84 32 C90 16 82 4 72 2 C76 12 74 22 70 30Z" fill="#ffcc4d"/><path d="M90 36 C100 24 98 10 90 6 C92 16 88 26 82 34Z" fill="#ff2e88"/><path d="M6 44 C6 32 20 28 34 32 C42 34 46 38 50 38 C54 38 58 34 66 32 C80 28 94 32 94 44 C94 62 80 70 66 66 C58 64 54 58 50 58 C46 58 42 64 34 66 C20 70 6 62 6 44Z" fill="#7b2cbf" stroke="#ffcc4d" stroke-width="3"/><path d="M18 46 C22 39 36 39 40 46 C36 51 22 51 18 46Z M60 46 C64 39 78 39 82 46 C78 51 64 51 60 46Z" fill="#14001f"/><path d="M14 40 C18 36 24 34 30 35" stroke="#fff" stroke-opacity=".4" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M50 58 V96" stroke="#ffcc4d" stroke-width="4" stroke-linecap="round"/>`),
   collar: S('0 0 100 100', `<ellipse cx="50" cy="46" rx="38" ry="28" fill="none" stroke="#1b0f0a" stroke-width="13"/><ellipse cx="50" cy="46" rx="38" ry="28" fill="none" stroke="#ff2e88" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round"/><rect x="42" y="68" width="16" height="9" rx="2" fill="#cfd6e6"/><circle cx="50" cy="86" r="10" fill="none" stroke="#ffcc4d" stroke-width="5"/>`),
+  bull: S('0 0 100 100', `<path d="M24 34 C8 30 2 14 6 4 C12 16 22 22 34 24Z M76 34 C92 30 98 14 94 4 C88 16 78 22 66 24Z" fill="#f3e2c7"/><rect x="18" y="22" width="64" height="64" rx="14" fill="#ffcc4d" transform="rotate(-6 50 54)"/><rect x="18" y="22" width="64" height="64" rx="14" fill="none" stroke="#2a0640" stroke-width="3" transform="rotate(-6 50 54)"/><text x="50" y="70" font-family="Georgia,serif" font-weight="900" font-size="38" text-anchor="middle" fill="#2a0640" transform="rotate(-6 50 54)">W</text><circle cx="72" cy="36" r="4" fill="#ff2e88"/>`),
   ynm: S('0 0 100 100', `<rect x="10" y="8" width="80" height="24" rx="12" fill="#2ecc71"/><rect x="10" y="38" width="80" height="24" rx="12" fill="#ffcc4d"/><rect x="10" y="68" width="80" height="24" rx="12" fill="#ff2e63"/><g font-family="system-ui,sans-serif" font-weight="900" font-size="15" fill="#14001f" text-anchor="middle"><text x="50" y="25">YES</text><text x="50" y="55">MAYBE</text><text x="50" y="85" fill="#fff">NO</text></g>`)
 };
 // ---------- content ----------
@@ -315,7 +320,14 @@ const KINK = [
    ["Exhibition","Your partner takes a naked photo of you on your own phone. Decide together whether it's deleted or kept."],
    ["Denial","Your partner teases you in front of the group for two minutes. Stay perfectly still and silent. Make a sound and the clock resets."]]
 ].forEach((more, i) => KINK[i].push(...more));
-const KINK_CATS = ['All','Hotwife','Cuckold','Group','Power','Bondage','Spanking','Denial','Exhibition','Sensation','Roleplay','Jealousy','Collar','Praise'];
+// Hotwife Roller: index 0-8 = rolls 1-9, index 9 = roll 0. {B} = the Bull / the Vixen.
+const HW = {
+  who: ["A stranger you meet at a bar tonight","Your celebrity crush (your partner plays them)","Someone you both find hot","Your partner's pick","Your own pick","A neighbour you've both noticed","Your ex (fantasy and dirty talk only)","Someone from a swingers or dating app you vet together","A stranger in uniform (role play)","Wild card: roll W twice and pick one"],
+  long: ["Tonight only","Tonight only","One weekend","One weekend","One week","One week","Two weeks","Two weeks","Until your partner calls it","Until your partner calls it"],
+  play: ["Flirt with {B} while your partner watches","{Bc} buys you a drink and gets your number","Slow dance with {B}","Kiss {B} while your partner watches","Give {B} a lap dance with your partner in the room","Make out with {B}. Your partner decides when it stops","Your partner writes the rules for a full hall pass with {B}","Your partner watches whatever the three of you have agreed to","A night where your partner owns you and decides how far it goes","Anything all three of you say yes to"],
+  tasks: ["Your partner picks your outfit every time you see {B}","Flirt with one stranger a day and report back","Text your partner a teaser before every meeting with {B}","Tell your partner every detail afterwards. They're not allowed to touch you while you do","Your partner can't touch you for the whole X period, except to kiss your hand","Wear something of {B}'s to bed with your partner","Your partner buys you lingerie that {B} gets to see first","Send your partner a private selfie from every meeting","Your partner wears something you choose every time you see {B}","Plan the next roll together, in bed"]
+};
+const KINK_CATS =['All','Hotwife','Cuckold','Group','Power','Bondage','Spanking','Denial','Exhibition','Sensation','Roleplay','Jealousy','Collar','Praise'];
 const YNM = ["Spanking (giving)","Spanking (receiving)","Blindfolds","Being tied up","Tying them up","Hotwife / hall pass for you","Hall pass for your partner","Watching your partner with someone else","Being watched with someone else","Threesome","Swinging or partner swap","Group play","Sex somewhere semi-public","Dirty talk","Role play","Uniforms and costumes","Lingerie and dress-up","You in charge (Dom)","Them in charge (sub you)","Collar and leash","Orgasm denial and edging","Wax play","Ice play","Hair pulling","Biting and marks","Praise","Degradation (verbal)","Toys together","Filming yourselves (private)","Sending explicit photos","Watching each other touch yourselves","Food play","Voyeurism (watching others)","Exhibitionism (being watched)"];
 const POWER = [
   ["Kneel with your hands behind your back. Eyes down.",60],
@@ -355,7 +367,8 @@ const GAMES = [
   {id:'dirty', name:'Dirty Mind', tag:'Sounds filthy. Answer is innocent.', icon:'dirty', run:gDirty},
   {id:'kink', name:'Kink Challenges', tag:'Hotwife, cuckold, bondage and more.', icon:'mask', run:gKink, kink:true},
   {id:'ynm', name:'Yes, No, Maybe', tag:'Find the kinks you both secretly want.', icon:'ynm', run:gYnm, kink:true},
-  {id:'power', name:'Power Play', tag:'One Dom, one sub, a deck of orders.', icon:'collar', run:gPower, kink:true}
+  {id:'power', name:'Power Play', tag:'One Dom, one sub, a deck of orders.', icon:'collar', run:gPower, kink:true},
+  {id:'hotwife', name:'Hotwife Roller', tag:'Roll W, X, Y, Z. Live with it.', icon:'bull', run:gHotwife, kink:true}
 ];
 
 function shell(title, inner) {
@@ -372,14 +385,14 @@ function route() {
 window.addEventListener('hashchange', route);
 
 function gate() {
-  app.innerHTML = `<div class="gate">${ART.lips}<div class="logo">Naughty Night</div><p>Ten raunchy party games for consenting adults.<br>Strictly 18+. Anyone can pass on anything, any time.</p><button class="btn" id="yes">I'm 18+, let's play</button><button class="btn ghost" id="no">Get me out of here</button></div>`;
+  app.innerHTML = `<div class="gate">${ART.lips}<div class="logo">Naughty Night</div><p>Eleven raunchy party games for consenting adults.<br>Strictly 18+. Anyone can pass on anything, any time.</p><button class="btn" id="yes">I'm 18+, let's play</button><button class="btn ghost" id="no">Get me out of here</button></div>`;
   $('#yes').onclick = () => { store.set('adult', true); route(); };
   $('#no').onclick = () => { app.innerHTML = `<div class="gate">${ART.shower}<p>Fair enough. Come back when you're feeling braver.</p></div>`; };
 }
 
 function home() {
   const tile = g => `<div class="tile${g.kink ? ' kinky' : ''}" data-id="${g.id}">${ART[g.icon]}<b>${g.name}</b><span>${g.tag}</span></div>`;
-  app.innerHTML = `<div id="updBanner"></div><div class="logo">Naughty Night</div><div class="sub">Ten games. Zero shame. Lights optional.</div>
+  app.innerHTML = `<div id="updBanner"></div><div class="logo">Naughty Night</div><div class="sub">Eleven games. Zero shame. Lights optional.</div>
   <div class="panel"><div class="ptitle">Who's playing</div><div class="chips" id="chips"></div>
   <form class="add" id="addp"><input id="pname" maxlength="16" placeholder="Add a player" autocomplete="off"><button class="btn sm">Add</button></form></div>
   <div class="grid">${GAMES.filter(g => !g.kink).map(tile).join('')}</div>
@@ -716,6 +729,52 @@ function gPower() { kinkGate('Power Play', () => {
     $('#again').onclick = setup;
   };
   setup();
+}); }
+
+function gHotwife() { kinkGate('Hotwife Roller', () => {
+  let mode = store.get('hwMode', 'w'), roll = store.get('hwRoll', null), iv = null;
+  cleanup = () => clearInterval(iv);
+  const COLS = [['W', 'who', false], ['X', 'long', false], ['Y', 'play', true], ['Z', 'tasks', true]];
+  const third = () => mode === 'w' ? 'the Bull' : 'the Vixen';
+  const t = s => s.replace(/\{Bc\}/g, third().replace('the', 'The')).replace(/\{B\}/g, third());
+  const label = k => ({who: third().replace('the', 'The'), long: 'How long', play: 'The play', tasks: 'Tasks'})[k];
+  const idx = d => d === 0 ? 9 : d - 1;
+  shell('Hotwife Roller', `<div class="seg" id="mode"><button data-m="w">Hotwife</button><button data-m="h">Hothusband</button></div>
+  <div class="dice4">${COLS.map(([L]) => `<div class="d10"><small>${L}</small><b id="dg${L}">?</b></div>`).join('')}</div>
+  <div class="row"><button class="btn gold" id="rollAll">Roll all four</button></div>
+  <div id="out"></div>
+  <div class="note">Y and Z are cumulative: you get everything up to your roll.<br>Don't like a column? Re-roll it, no questions. The dice don't decide for real people. Anyone involved still has to say yes.</div>`);
+  const marks = () => $('#mode').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.m === mode));
+  const draw = () => {
+    marks();
+    COLS.forEach(([L], i) => { $('#dg' + L).textContent = roll ? roll[i] : '?'; });
+    if (!roll) { $('#out').innerHTML = ''; return; }
+    $('#out').innerHTML = COLS.map(([L, k, cum], i) => {
+      const d = roll[i], items = HW[k].map(t);
+      const body = cum ? `<ul class="list" style="margin:6px 0 0">${items.slice(0, idx(d) + 1).map(x => `<li>${esc(x)}</li>`).join('')}</ul>`
+        : `<p style="margin:6px 0 0;font-size:18px;font-weight:700">${esc(items[idx(d)])}</p>`;
+      return `<div class="panel pop"><div class="ptitle" style="display:flex;justify-content:space-between;align-items:center;margin:0"><span>${L} &middot; ${esc(label(k))} &middot; rolled ${d}</span><button class="btn sm ghost" data-re="${i}" style="padding:6px 12px;font-size:13px">Re-roll</button></div>${body}</div>`;
+    }).join('');
+  };
+  const spin = cols => {
+    clearInterval(iv);
+    const next = roll ? roll.slice() : [0, 0, 0, 0];
+    let n = 0;
+    iv = setInterval(() => {
+      cols.forEach(i => { $('#dg' + COLS[i][0]).textContent = rnd(10); });
+      beep(300 + rnd(500), .03, 'square', .03);
+      if (++n > 12) {
+        clearInterval(iv);
+        cols.forEach(i => { next[i] = rnd(10); });
+        roll = next; store.set('hwRoll', roll); draw();
+        beep(660, .25, 'triangle'); buzz(80);
+      }
+    }, 70);
+  };
+  $('#mode').onclick = e => { if (e.target.dataset.m) { mode = e.target.dataset.m; store.set('hwMode', mode); draw(); } };
+  $('#rollAll').onclick = () => spin([0, 1, 2, 3]);
+  $('#out').onclick = e => { const i = e.target.dataset.re; if (i != null) { flash('Re-rolling'); spin([+i]); } };
+  draw();
 }); }
 
 // ---------- updates ----------
