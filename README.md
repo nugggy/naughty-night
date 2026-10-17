@@ -2,7 +2,7 @@
 
 An 18+ party game suite for Android. Strictly for consenting adults.
 
-Thirteen games: Truth or Dare, Dirty Dice, Spin the Bottle, Never Have I Ever, Strip Trivia, Cheeky Slots, Kiss Catcher, Would You Rather, Dirty Mind and Flirt or Fail, plus an after-dark kink section with Kink Challenges, Yes No Maybe and Power Play.
+Ten games: Truth or Dare, Dirty Dice, Spin the Bottle, Never Have I Ever, Strip Trivia, Would You Rather and Dirty Mind, plus an after-dark kink section with Kink Challenges, Yes No Maybe and Power Play.
 
 ## Install
 

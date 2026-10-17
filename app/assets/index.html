@@ -16,6 +16,7 @@ button{font:inherit;color:inherit}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .tile{background:linear-gradient(160deg,rgba(255,46,136,.20),rgba(155,92,255,.12));border:1px solid var(--line);border-radius:20px;padding:14px 10px 12px;text-align:center;cursor:pointer;transition:transform .15s}
 .tile:active{transform:scale(.95)}
+.grid .tile:last-child:nth-child(odd){grid-column:span 2}
 .tile svg{width:66px;height:66px;filter:drop-shadow(0 4px 12px rgba(255,46,136,.5))}
 .tile b{display:block;font-size:16px;margin-top:6px}
 .tile span{display:block;font-size:12px;color:var(--muted);margin-top:3px;line-height:1.3}
@@ -73,12 +74,6 @@ input{flex:1;min-width:0;background:rgba(0,0,0,.3);border:1px solid var(--line);
 .q{font-size:19px;line-height:1.4;text-align:center;margin:8px 0 2px}
 .meter{height:10px;border-radius:999px;background:rgba(0,0,0,.35);overflow:hidden;margin:6px 0 4px}
 .meter div{height:100%;background:linear-gradient(90deg,var(--purple),var(--pink),var(--gold));transition:width .5s}
-.slots{display:flex;gap:8px;justify-content:center;background:linear-gradient(180deg,#2b0040,#120019);border:3px solid var(--gold);border-radius:22px;padding:14px;box-shadow:0 0 30px rgba(255,204,77,.3)}
-.reel{flex:1;aspect-ratio:3/4;background:linear-gradient(180deg,#fff,#ffe3f1 50%,#fff);border-radius:14px;display:grid;place-items:center;overflow:hidden;box-shadow:inset 0 6px 10px rgba(0,0,0,.25),inset 0 -6px 10px rgba(0,0,0,.25)}
-.reel svg{width:76%;height:76%}
-.reel.spin svg{animation:blur .1s linear infinite}
-@keyframes blur{0%{transform:translateY(-30%);opacity:.6}100%{transform:translateY(30%);opacity:.6}}
-.credits{text-align:center;font-size:15px;color:var(--gold);margin:10px 0}
 .wyr{display:grid;gap:10px}
 .wyr button{border:0;border-radius:20px;padding:22px 16px;font-size:18px;line-height:1.35;min-height:120px;cursor:pointer;position:relative;overflow:hidden;color:#fff}
 .wyr .a{background:linear-gradient(135deg,#ff2e88,#c21e6a)}
@@ -87,22 +82,9 @@ input{flex:1;min-width:0;background:rgba(0,0,0,.3);border:1px solid var(--line);
 .wyr .pct{position:absolute;right:12px;bottom:8px;font-size:22px;font-weight:800;opacity:0;transition:opacity .4s}
 .wyr.done .pct{opacity:1}
 .wyr button.pick{outline:3px solid var(--gold)}
-canvas{display:block;width:100%;border-radius:20px;background:linear-gradient(180deg,#2a0640,#14001f);border:1px solid var(--line);touch-action:none}
-.hud{display:flex;justify-content:space-between;font-weight:700;margin-bottom:8px}
-.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(20,0,31,.8);border-radius:20px;text-align:center;padding:20px}
-.stage{position:relative}
-.overlay svg{width:110px;height:110px}
-.date{display:flex;flex-direction:column;align-items:center}
-.date svg{width:170px;height:170px}
-.bubble{background:#fff;color:#2a0640;border-radius:20px;padding:14px 16px;font-size:18px;line-height:1.35;position:relative;margin:4px 0 6px;text-align:center;font-weight:600}
-.bubble:before{content:"";position:absolute;top:-10px;left:50%;margin-left:-10px;border:10px solid transparent;border-top:0;border-bottom-color:#fff}
-.pickdate{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.pickdate button{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:10px 4px;cursor:pointer}
-.pickdate svg{width:100%;height:auto}
 .gate{min-height:90vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px}
 .gate svg{width:140px;height:140px}
 .gate p{color:var(--muted);line-height:1.5;margin:0 0 6px}
-.score{font-size:38px;font-weight:800;color:var(--gold)}
 .section{font-family:Georgia,serif;font-style:italic;font-weight:700;font-size:24px;margin:26px 0 12px;color:var(--gold)}
 .tile.kinky{background:linear-gradient(160deg,rgba(20,0,31,.9),rgba(123,44,191,.35));border-color:rgba(255,204,77,.35)}
 .banner{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--gold),#ff8a00);color:#2a0640;border-radius:16px;padding:10px 12px;font-weight:700;font-size:14px;margin-bottom:6px}
@@ -158,15 +140,10 @@ function flash(txt) { const d = document.createElement('div'); d.className = 'fl
 const S = (vb, inner) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}">${inner}</svg>`;
 const ART = {
   lips: S('0 0 100 70', `<path d="M4 35 C18 8 38 6 50 18 C62 6 82 8 96 35 C80 64 20 64 4 35Z" fill="#ff2e63"/><path d="M4 35 C30 42 70 42 96 35" stroke="#7a0020" stroke-width="3.5" fill="none"/><path d="M26 22 C34 17 42 18 46 23" stroke="#fff" stroke-opacity=".6" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M34 50 C42 54 58 54 66 50" stroke="#fff" stroke-opacity=".35" stroke-width="3" fill="none" stroke-linecap="round"/>`),
-  peach: S('0 0 100 100', `<path d="M50 30 C22 12 4 38 12 64 C20 88 48 94 50 94 C52 94 80 88 88 64 C96 38 78 12 50 30Z" fill="#ff9a76"/><path d="M50 30 C22 12 4 38 12 64 C16 76 26 84 36 88 C20 70 22 40 50 30Z" fill="#ff7b6b" opacity=".6"/><path d="M50 33 C43 52 45 76 50 92" stroke="#e45b4f" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M50 30 C54 14 70 6 84 10 C74 22 62 28 50 30Z" fill="#43aa8b"/><ellipse cx="70" cy="48" rx="7" ry="10" fill="#fff" opacity=".35"/>`),
-  eggplant: S('0 0 100 100', `<path d="M72 22 C88 32 84 58 66 74 C48 92 18 96 10 86 C3 76 16 60 34 45 C50 32 56 16 72 22Z" fill="#7b2cbf"/><path d="M28 72 C38 64 48 55 55 46" stroke="#fff" stroke-opacity=".35" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M60 20 L76 6 L74 22 L92 22 L76 32 L70 26Z" fill="#43aa8b"/>`),
-  cherry: S('0 0 100 100', `<path d="M30 62 C34 40 46 20 66 8 M70 62 C66 40 62 24 66 8" stroke="#3d7a35" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M66 8 C78 6 88 12 90 20 C80 22 70 18 66 8Z" fill="#43aa8b"/><circle cx="30" cy="70" r="20" fill="#e0103a"/><circle cx="70" cy="70" r="20" fill="#e0103a"/><circle cx="23" cy="63" r="6" fill="#fff" opacity=".5"/><circle cx="63" cy="63" r="6" fill="#fff" opacity=".5"/>`),
   fire: S('0 0 100 100', `<path d="M50 6 C56 26 80 36 80 62 C80 82 66 94 50 94 C34 94 20 82 20 62 C20 46 30 38 34 26 C40 38 44 42 48 42 C46 28 46 16 50 6Z" fill="#ff5a1f"/><path d="M50 40 C54 54 68 60 68 74 C68 86 60 92 50 92 C40 92 32 86 32 74 C32 64 40 60 42 52 C46 58 48 58 50 58 C48 52 48 46 50 40Z" fill="#ffcc4d"/>`),
   heart: S('0 0 100 100', `<path d="M50 90 C20 66 5 50 5 31 C5 16 17 6 30 6 C40 6 47 12 50 19 C53 12 60 6 70 6 C83 6 95 16 95 31 C95 50 80 66 50 90Z" fill="#ff2e63"/><path d="M22 22 C26 16 32 15 36 16" stroke="#fff" stroke-opacity=".6" stroke-width="5" fill="none" stroke-linecap="round"/>`),
-  cuffs: S('0 0 100 100', `<circle cx="28" cy="62" r="20" fill="none" stroke="#cfd6e6" stroke-width="9"/><circle cx="72" cy="62" r="20" fill="none" stroke="#cfd6e6" stroke-width="9"/><circle cx="28" cy="62" r="20" fill="none" stroke="#ff2e88" stroke-width="3" stroke-dasharray="4 5"/><circle cx="72" cy="62" r="20" fill="none" stroke="#ff2e88" stroke-width="3" stroke-dasharray="4 5"/><path d="M40 40 C44 30 56 30 60 40" stroke="#9aa3b8" stroke-width="6" fill="none"/>`),
   devil: S('0 0 100 100', `<path d="M22 34 C12 22 14 8 18 2 C22 14 30 20 38 22Z M78 34 C88 22 86 8 82 2 C78 14 70 20 62 22Z" fill="#ff2e63"/><circle cx="50" cy="56" r="38" fill="#c2185b"/><circle cx="50" cy="56" r="38" fill="url(#dg)"/><defs><radialGradient id="dg" cx=".35" cy=".3"><stop offset="0" stop-color="#ff5fa0"/><stop offset="1" stop-color="#9b0f4a"/></radialGradient></defs><path d="M30 44 L44 50 M70 44 L56 50" stroke="#2a0010" stroke-width="5" stroke-linecap="round"/><circle cx="38" cy="54" r="5" fill="#fff"/><circle cx="62" cy="54" r="5" fill="#fff"/><path d="M30 68 C40 82 60 82 70 68 C60 74 40 74 30 68Z" fill="#2a0010"/><path d="M56 74 L60 82 L64 74Z" fill="#fff"/>`),
   bottle: S('0 0 40 100', `<rect x="15" y="2" width="10" height="8" rx="2" fill="#ffcc4d"/><path d="M15 10 H25 V30 C25 36 34 40 34 50 V92 C34 96 31 98 28 98 H12 C9 98 6 96 6 92 V50 C6 40 15 36 15 30Z" fill="#1f9d55"/><path d="M10 52 V90" stroke="#fff" stroke-opacity=".4" stroke-width="3" stroke-linecap="round"/><rect x="8" y="58" width="24" height="20" rx="3" fill="#ff2e88"/><path d="M14 68 C16 64 19 64 20 67 C21 64 24 64 26 68 C24 72 20 74 20 74 C20 74 16 72 14 68Z" fill="#fff"/>`),
-  bubbly: S('0 0 100 100', `<path d="M36 8 H64 C66 34 60 52 50 54 C40 52 34 34 36 8Z" fill="#ffcc4d" opacity=".9"/><path d="M36 8 H64 C64 14 64 16 63 20 H37 C36 16 36 14 36 8Z" fill="#fff" opacity=".7"/><path d="M50 54 V86 M36 90 H64" stroke="#e8e0ff" stroke-width="5" stroke-linecap="round"/><circle cx="46" cy="30" r="2.5" fill="#fff"/><circle cx="54" cy="40" r="2" fill="#fff"/><circle cx="50" cy="24" r="1.8" fill="#fff"/>`),
   shower: S('0 0 100 100', `<path d="M24 54 C10 54 8 34 22 32 C22 18 40 12 50 22 C58 10 80 14 80 30 C94 30 94 54 78 54Z" fill="#9fc6e8"/><path d="M30 64 L26 76 M48 64 L44 80 M66 64 L62 76" stroke="#5ea8ff" stroke-width="5" stroke-linecap="round"/><path d="M38 40 L44 44 M62 40 L56 44" stroke="#2a3b55" stroke-width="3" stroke-linecap="round"/><path d="M42 50 C46 46 54 46 58 50" stroke="#2a3b55" stroke-width="3" fill="none" stroke-linecap="round"/>`),
   dice: S('0 0 100 100', `<rect x="10" y="10" width="80" height="80" rx="18" fill="#fff"/><rect x="10" y="10" width="80" height="80" rx="18" fill="none" stroke="#ff2e88" stroke-width="4"/><g fill="#ff2e88"><path d="M26 32 C26 28 29 26 31 28 C33 26 36 28 36 32 C36 35 31 38 31 38 C31 38 26 35 26 32Z"/><path d="M45 52 C45 48 48 46 50 48 C52 46 55 48 55 52 C55 55 50 58 50 58 C50 58 45 55 45 52Z"/><path d="M64 72 C64 68 67 66 69 68 C71 66 74 68 74 72 C74 75 69 78 69 78 C69 78 64 75 64 72Z"/></g>`),
   martini: S('0 0 100 100', `<path d="M14 16 H86 L50 54Z" fill="#ff2e88" opacity=".85"/><path d="M14 16 H86 L80 22 H20Z" fill="#fff" opacity=".5"/><path d="M50 54 V86 M34 90 H66" stroke="#e8e0ff" stroke-width="5" stroke-linecap="round"/><path d="M58 4 L44 34" stroke="#ffcc4d" stroke-width="3"/><circle cx="46" cy="30" r="7" fill="#7cb342"/><circle cx="46" cy="30" r="2.5" fill="#e53935"/>`),
@@ -177,29 +154,6 @@ const ART = {
   collar: S('0 0 100 100', `<ellipse cx="50" cy="46" rx="38" ry="28" fill="none" stroke="#1b0f0a" stroke-width="13"/><ellipse cx="50" cy="46" rx="38" ry="28" fill="none" stroke="#ff2e88" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round"/><rect x="42" y="68" width="16" height="9" rx="2" fill="#cfd6e6"/><circle cx="50" cy="86" r="10" fill="none" stroke="#ffcc4d" stroke-width="5"/>`),
   ynm: S('0 0 100 100', `<rect x="10" y="8" width="80" height="24" rx="12" fill="#2ecc71"/><rect x="10" y="38" width="80" height="24" rx="12" fill="#ffcc4d"/><rect x="10" y="68" width="80" height="24" rx="12" fill="#ff2e63"/><g font-family="system-ui,sans-serif" font-weight="900" font-size="15" fill="#14001f" text-anchor="middle"><text x="50" y="25">YES</text><text x="50" y="55">MAYBE</text><text x="50" y="85" fill="#fff">NO</text></g>`)
 };
-function face(mood, look) {
-  const skin = look.skin, hair = look.hair;
-  let back = '', front = '';
-  if (look.style === 'long') { back = `<path d="M18 50 C14 20 34 8 50 8 C66 8 86 20 82 50 L86 96 H14Z" fill="${hair}"/>`; front = `<path d="M24 44 C26 22 40 16 52 16 C64 16 76 24 76 40 C66 30 52 26 40 34 C34 38 28 42 24 44Z" fill="${hair}"/>`; }
-  else if (look.style === 'short') { front = `<path d="M22 46 C18 18 40 8 54 10 C70 12 82 24 78 46 C74 34 70 28 62 26 C52 30 38 30 28 30 C24 34 22 40 22 46Z" fill="${hair}"/>`; }
-  else { front = `<path d="M22 44 C20 22 34 10 50 10 C58 10 64 12 70 16 C74 6 86 10 84 22 C82 30 78 32 78 44 C72 30 60 24 48 28 C36 32 28 38 22 44Z" fill="${hair}"/><path d="M70 16 C74 6 86 10 84 22" fill="${hair}"/>`; }
-  const eyes = {
-    love: `<path d="M32 46 C32 42 35 40 37.5 43 C40 40 43 42 43 46 C43 50 37.5 54 37.5 54 C37.5 54 32 50 32 46Z M57 46 C57 42 60 40 62.5 43 C65 40 68 42 68 46 C68 50 62.5 54 62.5 54 C62.5 54 57 50 57 46Z" fill="#ff2e63"/>`,
-    happy: `<path d="M31 49 C34 43 41 43 44 49 M56 49 C59 43 66 43 69 49" stroke="#2a0640" stroke-width="3.5" fill="none" stroke-linecap="round"/>`,
-    meh: `<circle cx="38" cy="48" r="4" fill="#2a0640"/><circle cx="62" cy="48" r="4" fill="#2a0640"/><path d="M31 39 H44 M56 39 H69" stroke="#2a0640" stroke-width="3" stroke-linecap="round"/>`,
-    sad: `<circle cx="38" cy="49" r="4" fill="#2a0640"/><circle cx="62" cy="49" r="4" fill="#2a0640"/><path d="M31 42 L44 38 M56 38 L69 42" stroke="#2a0640" stroke-width="3" stroke-linecap="round"/>`
-  }[mood];
-  const mouth = {
-    love: `<path d="M38 64 C42 76 58 76 62 64Z" fill="#b0103a"/><path d="M44 70 C48 73 52 73 56 70" stroke="#ff8fb0" stroke-width="3" fill="none"/>`,
-    happy: `<path d="M38 64 C44 72 56 72 62 64" stroke="#b0103a" stroke-width="4" fill="none" stroke-linecap="round"/>`,
-    meh: `<path d="M41 67 H59" stroke="#b0103a" stroke-width="4" stroke-linecap="round"/>`,
-    sad: `<path d="M39 71 C45 63 55 63 61 71" stroke="#b0103a" stroke-width="4" fill="none" stroke-linecap="round"/>`
-  }[mood];
-  const blush = (mood === 'love' || mood === 'happy') ? `<ellipse cx="28" cy="60" rx="7" ry="4" fill="#ff5f8f" opacity=".5"/><ellipse cx="72" cy="60" rx="7" ry="4" fill="#ff5f8f" opacity=".5"/>` : '';
-  const extra = look.extra || '';
-  return S('0 0 100 100', `<circle cx="50" cy="50" r="49" fill="${look.bg}"/>${back}<path d="M38 74 H62 V96 H38Z" fill="${skin}"/><path d="M14 100 C18 84 32 80 50 80 C68 80 82 84 86 100Z" fill="${look.top}"/><ellipse cx="50" cy="50" rx="28" ry="32" fill="${skin}"/>${front}${blush}${eyes}${mouth}${extra}`);
-}
-
 // ---------- content ----------
 const TOD = {
   truth: [
@@ -266,32 +220,6 @@ const BOTTLE_ACTS = ["kisses {s}","gets a 10-second kiss from {s}","swaps an ite
 const DICE_ACT = ["Kiss","Lick","Nibble","Massage","Blow on","Tickle"];
 const DICE_SPOT = ["Neck","Ear","Lips","Inner thigh","Belly","Your choice"];
 const DICE_TIME = ["10 sec","20 sec","30 sec","1 min","2 min","Until they beg"];
-const SLOT_SYMS = ['peach','eggplant','cherry','lips','cuffs','fire','devil'];
-const SLOT_WEIGHTS = [5,4,6,5,3,4,2];
-const SLOT_WIN = {
-  peach:"Bums out. Everyone gets a cheeky spank from you.",
-  eggplant:"Jackpot, big boy. Pick anyone for a 1-minute massage, from them to you.",
-  cherry:"Sweet. Feed someone a cherry (or lolly), no hands.",
-  lips:"Kiss the person of your choice. Make it count.",
-  cuffs:"You and the next player are cuffed (hands joined) for 3 rounds.",
-  fire:"Too hot to handle. Remove an item of clothing.",
-  devil:"Devil's choice. The group sets you any dare."
-};
-const SLOT_MISS = ["Nothing. Just like your love life.","Spin harder, darling.","Close, but no cigar. Or eggplant.","The machine is not in the mood.","Blue balls. Try again.","Denied. The house always wins."];
-const DATES = [
-  {name:'Scarlett', look:{bg:'#ff2e88',skin:'#f6c9a8',hair:'#b3122e',style:'long',top:'#2a0640',extra:'<path d="M42 66 C46 64 54 64 58 66" stroke="#e0103a" stroke-width="2" fill="none"/>'}},
-  {name:'Dante', look:{bg:'#7b3cff',skin:'#c68a5e',hair:'#1b0f0a',style:'short',top:'#ff2e88',extra:'<path d="M34 72 C40 82 60 82 66 72" stroke="#1b0f0a" stroke-opacity=".25" stroke-width="6" fill="none"/>'}},
-  {name:'Sasha', look:{bg:'#ffcc4d',skin:'#e9b48a',hair:'#8e44ff',style:'undercut',top:'#14001f',extra:'<circle cx="23" cy="58" r="3" fill="#ffcc4d"/>'}}
-];
-const FLIRT = [
-  {say:"So... do you come here often?",opts:[["Only when I know you'll be here.",2],["Define 'often'. And 'here'. And 'come'.",1],["Yeah, my mum drops me off on Thursdays.",-2]]},
-  {say:"Tell me something interesting about you.",opts:[["I can tie a cherry stem in a knot with my tongue. Want proof?",2],["I'm a great listener. You first.",1],["I have 47 tabs open about crypto. Want to see them?",-2]]},
-  {say:"You've got something... right there.",opts:[["Wipe it off for me?",2],["Probably my dignity. I lose it around you.",1],["*licks own face like a Labrador*",-3]]},
-  {say:"Want to share dessert?",opts:[["Only if I get to feed you.",2],["One spoon. No rules.",1],["No. I don't share. Ever. With anyone.",-2]]},
-  {say:"It's getting late...",opts:[["Then let's not waste any more of it.",2],["My place has better lighting. And a cat.",1],["Cool, my bus leaves in 4 minutes. Bye.",-3]]},
-  {say:"Well? Are you going to kiss me or not?",opts:[["*leans in slow, confident, absolutely nails it*",3],["*goes for it, bumps noses, laughs it off*",1],["*offers a firm, businesslike handshake*",-3]]}
-];
-
 // ---------- kink content ----------
 const KINK = [
   [["Hotwife","Dress your partner for a night out in something chosen to make other people stare. They report every glance they get."],
@@ -423,11 +351,8 @@ const GAMES = [
   {id:'bottle', name:'Spin the Bottle', tag:'Fate picks your victim.', icon:'bottle', run:gBottle},
   {id:'nhie', name:'Never Have I Ever', tag:'Drink if you have, you dirty thing.', icon:'martini', run:gNhie},
   {id:'strip', name:'Strip Trivia', tag:'Wrong answer? Lose a layer.', icon:'undies', run:gStrip},
-  {id:'slots', name:'Cheeky Slots', tag:'Three of a kind pays out in dares.', icon:'cherry', run:gSlots},
-  {id:'kiss', name:'Kiss Catcher', tag:'Catch the kisses, dodge cold showers.', icon:'lips', run:gKiss},
   {id:'wyr', name:'Would You Rather', tag:'Impossible, filthy choices.', icon:'wyr', run:gWyr},
   {id:'dirty', name:'Dirty Mind', tag:'Sounds filthy. Answer is innocent.', icon:'dirty', run:gDirty},
-  {id:'flirt', name:'Flirt or Fail', tag:'Smooth-talk your date home.', icon:'heart', run:gFlirt},
   {id:'kink', name:'Kink Challenges', tag:'Hotwife, cuckold, bondage and more.', icon:'mask', run:gKink, kink:true},
   {id:'ynm', name:'Yes, No, Maybe', tag:'Find the kinks you both secretly want.', icon:'ynm', run:gYnm, kink:true},
   {id:'power', name:'Power Play', tag:'One Dom, one sub, a deck of orders.', icon:'collar', run:gPower, kink:true}
@@ -447,14 +372,14 @@ function route() {
 window.addEventListener('hashchange', route);
 
 function gate() {
-  app.innerHTML = `<div class="gate">${ART.lips}<div class="logo">Naughty Night</div><p>Thirteen raunchy party games for consenting adults.<br>Strictly 18+. Anyone can pass on anything, any time.</p><button class="btn" id="yes">I'm 18+, let's play</button><button class="btn ghost" id="no">Get me out of here</button></div>`;
+  app.innerHTML = `<div class="gate">${ART.lips}<div class="logo">Naughty Night</div><p>Ten raunchy party games for consenting adults.<br>Strictly 18+. Anyone can pass on anything, any time.</p><button class="btn" id="yes">I'm 18+, let's play</button><button class="btn ghost" id="no">Get me out of here</button></div>`;
   $('#yes').onclick = () => { store.set('adult', true); route(); };
   $('#no').onclick = () => { app.innerHTML = `<div class="gate">${ART.shower}<p>Fair enough. Come back when you're feeling braver.</p></div>`; };
 }
 
 function home() {
   const tile = g => `<div class="tile${g.kink ? ' kinky' : ''}" data-id="${g.id}">${ART[g.icon]}<b>${g.name}</b><span>${g.tag}</span></div>`;
-  app.innerHTML = `<div id="updBanner"></div><div class="logo">Naughty Night</div><div class="sub">Thirteen games. Zero shame. Lights optional.</div>
+  app.innerHTML = `<div id="updBanner"></div><div class="logo">Naughty Night</div><div class="sub">Ten games. Zero shame. Lights optional.</div>
   <div class="panel"><div class="ptitle">Who's playing</div><div class="chips" id="chips"></div>
   <form class="add" id="addp"><input id="pname" maxlength="16" placeholder="Add a player" autocomplete="off"><button class="btn sm">Add</button></form></div>
   <div class="grid">${GAMES.filter(g => !g.kink).map(tile).join('')}</div>
@@ -621,99 +546,6 @@ function gStrip() {
   drawLayers(); ask();
 }
 
-// 6. Cheeky Slots
-function gSlots() {
-  let credits = store.get('credits', 15);
-  const pool = []; SLOT_SYMS.forEach((s, i) => { for (let k = 0; k < SLOT_WEIGHTS[i]; k++) pool.push(s); });
-  shell('Cheeky Slots', `<div class="slots"><div class="reel" id="r0">${ART.peach}</div><div class="reel" id="r1">${ART.eggplant}</div><div class="reel" id="r2">${ART.cherry}</div></div>
-  <div class="credits" id="cr"></div>
-  <div class="card" id="res" style="min-height:110px;font-size:19px">Feeling lucky? One credit a spin.</div>
-  <div class="row"><button class="btn gold" id="spin">Pull the lever</button></div>
-  <div class="note">Three of a kind wins a dare. Two of a kind wins 2 credits. Broke? Take a sip and get 5.</div>`);
-  const drawCr = () => { $('#cr').textContent = 'Credits: ' + credits; store.set('credits', credits); $('#spin').textContent = credits > 0 ? 'Pull the lever' : 'Broke. Sip for 5 credits'; };
-  drawCr();
-  let busy = false, ivs = [];
-  cleanup = () => ivs.forEach(clearInterval);
-  $('#spin').onclick = () => {
-    if (busy) return;
-    if (credits <= 0) { credits = 5; drawCr(); flash('+5 credits'); return; }
-    busy = true; credits--; drawCr();
-    const res = [pick(pool), pick(pool), pick(pool)];
-    if (Math.random() < .12) res[1] = res[2] = res[0];
-    [0,1,2].forEach(i => {
-      const r = $('#r' + i); r.classList.add('spin');
-      ivs[i] = setInterval(() => { r.innerHTML = ART[pick(SLOT_SYMS)]; }, 70);
-      setTimeout(() => { clearInterval(ivs[i]); r.classList.remove('spin'); r.innerHTML = ART[res[i]]; beep(400 + i * 150, .1, 'square', .05); if (i === 2) done(); }, 700 + i * 450);
-    });
-    const done = () => {
-      busy = false;
-      const r = $('#res'); r.classList.remove('pop'); void r.offsetWidth; r.classList.add('pop');
-      if (res[0] === res[1] && res[1] === res[2]) {
-        credits += 5; r.innerHTML = `<span class="tag">Jackpot</span><p style="margin:0">${SLOT_WIN[res[0]]}</p>`;
-        flash('JACKPOT'); buzz([100, 60, 100]); [523, 659, 784, 1047].forEach((f, k) => setTimeout(() => beep(f, .2, 'triangle'), k * 120));
-      } else if (res[0] === res[1] || res[1] === res[2] || res[0] === res[2]) {
-        credits += 2; r.innerHTML = `<p style="margin:0">Two of a kind. +2 credits, and you owe someone a wink.</p>`; beep(700, .2, 'triangle');
-      } else { r.innerHTML = `<p style="margin:0">${pick(SLOT_MISS)}</p>`; }
-      drawCr();
-    };
-  };
-}
-
-// 7. Kiss Catcher
-function gKiss() {
-  const best = store.get('kissBest', 0);
-  shell('Kiss Catcher', `<div class="hud"><span id="sc">Score 0</span><span id="lv">&#10084;&#10084;&#10084;</span><span>Best ${best}</span></div>
-  <div class="stage"><canvas id="cv"></canvas><div class="overlay" id="ov">${ART.lips}<b style="font-size:20px">Catch the kisses</b><span style="color:var(--muted);font-size:14px;line-height:1.5">Drag to move. Lips, hearts, cherries and bubbly score.<br>Cold showers kill the mood.</span><button class="btn" id="go" style="width:auto;padding:14px 30px">Pucker up</button></div></div>`);
-  const cv = $('#cv'), ctx = cv.getContext('2d');
-  const dpr = window.devicePixelRatio || 1;
-  const W = cv.clientWidth, H = Math.min(window.innerHeight * .68, 560);
-  cv.style.height = H + 'px'; cv.width = W * dpr; cv.height = H * dpr; ctx.scale(dpr, dpr);
-  const img = {}; ['lips','heart','cherry','bubbly','shower','peach'].forEach(k => { const i = new Image(); i.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(ART[k]); img[k] = i; });
-  const mouth = new Image(); mouth.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(ART.lips);
-  const TYPES = [{k:'heart',p:10,w:5},{k:'lips',p:15,w:4},{k:'cherry',p:5,w:4},{k:'bubbly',p:25,w:1},{k:'peach',p:20,w:2},{k:'shower',p:0,w:3,bad:true}];
-  const tpool = []; TYPES.forEach(t => { for (let i = 0; i < t.w; i++) tpool.push(t); });
-  let items, px, score, lives, speed, spawn, raf, last, running = false, pops;
-  const reset = () => { items = []; pops = []; px = W / 2; score = 0; lives = 3; speed = 1; spawn = 0; };
-  const move = e => { const r = cv.getBoundingClientRect(); const t = e.touches ? e.touches[0] : e; px = Math.max(40, Math.min(W - 40, t.clientX - r.left)); };
-  cv.addEventListener('touchmove', e => { e.preventDefault(); move(e); }, {passive:false});
-  cv.addEventListener('touchstart', move, {passive:true});
-  cv.addEventListener('mousemove', move);
-  const hud = () => { $('#sc').textContent = 'Score ' + score; $('#lv').innerHTML = '&#10084;'.repeat(Math.max(0, lives)) || '&#128148;'; };
-  const loop = t => {
-    const dt = Math.min(40, t - (last || t)) / 16.67; last = t;
-    speed += .0009 * dt; spawn -= dt;
-    if (spawn <= 0) { const ty = pick(tpool); items.push({x: 24 + Math.random() * (W - 48), y: -30, s: 34 + rnd(12), v: (2 + Math.random() * 1.5) * speed, t: ty, r: Math.random() * 6}); spawn = Math.max(14, 42 - speed * 9); }
-    ctx.clearRect(0, 0, W, H);
-    for (let i = 0; i < 30; i++) { ctx.fillStyle = 'rgba(255,255,255,' + (.05 + (i % 3) * .04) + ')'; ctx.fillRect((i * 97) % W, (i * 53 + t * .02 * (1 + i % 3)) % H, 2, 2); }
-    const my = H - 50;
-    for (let i = items.length - 1; i >= 0; i--) {
-      const it = items[i]; it.y += it.v * dt; it.r += .05 * dt;
-      ctx.save(); ctx.translate(it.x, it.y); ctx.rotate(Math.sin(it.r) * .3); ctx.drawImage(img[it.t.k], -it.s / 2, -it.s / 2, it.s, it.s); ctx.restore();
-      if (it.y > my - 20 && it.y < my + 20 && Math.abs(it.x - px) < 48) {
-        items.splice(i, 1);
-        if (it.t.bad) { lives--; buzz(200); beep(140, .4, 'sawtooth'); pops.push({x: it.x, y: my - 30, txt: 'Brrr!', a: 1, c: '#9fc6e8'}); }
-        else { score += it.t.p; beep(600 + it.t.p * 20, .08, 'triangle'); pops.push({x: it.x, y: my - 30, txt: '+' + it.t.p, a: 1, c: '#ffcc4d'}); }
-        hud();
-      } else if (it.y > H + 30) { items.splice(i, 1); }
-    }
-    pops.forEach(p => { p.y -= 1.2 * dt; p.a -= .025 * dt; ctx.globalAlpha = Math.max(0, p.a); ctx.fillStyle = p.c; ctx.font = 'bold 20px system-ui'; ctx.textAlign = 'center'; ctx.fillText(p.txt, p.x, p.y); });
-    ctx.globalAlpha = 1; pops = pops.filter(p => p.a > 0);
-    ctx.save(); ctx.shadowColor = '#ff2e88'; ctx.shadowBlur = 20; ctx.drawImage(mouth, px - 48, my - 32, 96, 66); ctx.restore();
-    if (lives <= 0) return over();
-    raf = requestAnimationFrame(loop);
-  };
-  const over = () => {
-    running = false;
-    const b = Math.max(best, score, store.get('kissBest', 0)); store.set('kissBest', b);
-    const ov = $('#ov'); ov.style.display = 'flex';
-    ov.innerHTML = `${ART.shower}<b style="font-size:20px">Mood killed</b><div class="score">${score}</div><span style="color:var(--muted)">${score >= b && score > 0 ? 'New personal best, you kissing machine.' : 'Best: ' + b}</span><span style="font-size:14px;color:var(--muted)">Pass the phone. Lowest score kisses the highest.</span><button class="btn" id="go" style="width:auto;padding:14px 30px">Again</button>`;
-    $('#go').onclick = start;
-  };
-  const start = () => { $('#ov').style.display = 'none'; reset(); hud(); last = 0; running = true; raf = requestAnimationFrame(loop); };
-  $('#go').onclick = start;
-  cleanup = () => cancelAnimationFrame(raf);
-}
-
 // 8. Would You Rather
 function gWyr() {
   const next = deck(WYR);
@@ -745,47 +577,6 @@ function gDirty() {
     };
   };
   tally(); show();
-}
-
-// 10. Flirt or Fail
-function gFlirt() {
-  shell('Flirt or Fail', `<p class="who" style="font-size:16px">Pick your date for the night</p><div class="pickdate">${DATES.map((d, i) => `<button data-i="${i}">${face('happy', d.look)}<b style="display:block;margin-top:4px">${d.name}</b></button>`).join('')}</div>
-  <div class="note">Six moments. Say the right thing and you're going home with them. Say the wrong thing and you're going home with a kebab.</div>`);
-  app.querySelector('.pickdate').onclick = e => { const b = e.target.closest('button'); if (b) play(DATES[+b.dataset.i]); };
-  function play(d) {
-    let i = 0, score = 3;
-    const mood = () => score >= 8 ? 'love' : score >= 4 ? 'happy' : score >= 1 ? 'meh' : 'sad';
-    const draw = () => {
-      if (i >= FLIRT.length) return finish();
-      const r = FLIRT[i];
-      app.innerHTML = `<div class="top"><button class="back" id="back">&#8249;</button><h2>${d.name}</h2></div>
-      <div class="meter"><div style="width:${Math.max(4, Math.min(100, score / 14 * 100))}%"></div></div><div class="who" style="font-size:12px">Chemistry</div>
-      <div class="date">${face(mood(), d.look)}<div class="bubble pop">${esc(r.say)}</div></div>
-      <div class="opts">${shuffle(r.opts.map((o, k) => [o, k])).map(([o]) => `<button class="opt" data-v="${o[1]}">${esc(o[0])}</button>`).join('')}</div>`;
-      $('#back').onclick = () => history.back();
-      app.querySelector('.opts').onclick = e => {
-        const v = e.target.dataset.v; if (v == null) return;
-        score += +v; app.querySelectorAll('.opt').forEach(b => b.disabled = true);
-        e.target.classList.add(+v > 0 ? 'right' : 'wrong');
-        if (+v >= 2) { flash(pick(['Smooth','Ooh la la','Swoon'])); beep(880, .2, 'triangle'); }
-        else if (+v > 0) { flash(pick(['Cheeky','Ha, cute'])); beep(660, .15, 'triangle'); }
-        else { flash(pick(['Cringe','Yikes','Oof'])); beep(160, .35, 'sawtooth'); buzz(120); }
-        app.querySelector('.date svg').outerHTML = face(mood(), d.look);
-        i++; setTimeout(draw, 1200);
-      };
-    };
-    const finish = () => {
-      const m = score >= 13 ? ['love', `${d.name} grabs your collar and pulls you into a cab. What happens next is heavily censored.`, 'Certified smooth operator.']
-        : score >= 7 ? ['happy', `You get ${d.name}'s number and a lingering kiss goodnight. Second date is a lock.`, 'Not bad at all.']
-        : score >= 2 ? ['meh', `${d.name} says they "had a nice time". You both know what that means.`, 'Friend-zoned with honours.']
-        : ['sad', `${d.name} fakes an emergency call about their sick goldfish and sprints out.`, 'Catastrophic failure. Kebab for one.'];
-      app.innerHTML = `<div class="top"><button class="back" id="back">&#8249;</button><h2>${d.name}</h2></div>
-      <div class="date">${face(m[0], d.look)}<div class="card pop" style="min-height:0;margin-top:10px"><span class="tag">Chemistry ${score}/14</span><p style="margin:14px 0 6px">${m[1]}</p><p style="margin:0;color:var(--gold);font-weight:700">${m[2]}</p></div></div>
-      <div class="row"><button class="btn" id="again">Try another date</button></div>`;
-      $('#back').onclick = () => history.back(); $('#again').onclick = gFlirt;
-    };
-    draw();
-  }
 }
 
 // ---------- kink games ----------
