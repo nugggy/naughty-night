@@ -2,7 +2,7 @@
 
 An 18+ party game suite for Android. Strictly for consenting adults.
 
-Eleven games: Truth or Dare, Dirty Dice, Spin the Bottle, Never Have I Ever, Strip Trivia, Would You Rather and Dirty Mind, plus an after-dark kink section with Kink Challenges, Yes No Maybe, Power Play and Hotwife Roller.
+Thirteen games: Truth or Dare, Dirty Dice, Spin the Bottle, Never Have I Ever, Strip Trivia, Would You Rather and Dirty Mind, plus an after-dark kink section with Kink Challenges, Yes No Maybe, Power Play, Hotwife Roller, Fantasy Builder and Tease Timer.
 
 ## Install
 
@@ -20,7 +20,7 @@ The **Beta** channel also picks up pre-releases.
 
 ## Build and release
 
-Needs JDK 17, Python and the Android SDK (build-tools 36.0.0, platform android-36). No Gradle.
+Needs JDK 17 and the Android SDK (build-tools 36.0.0, platform android-36). No Gradle.
 
 ```bash
 ./build.sh                              # builds NaughtyNight.apk from VERSION

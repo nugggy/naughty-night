@@ -30,10 +30,7 @@ javac -nowarn -Xlint:-options -Xlint:-deprecation -source 11 -target 11 -classpa
   $(find app/src "$OUT/gen" -name '*.java')
 java -cp "$BT/lib/d8.jar" com.android.tools.r8.D8 --release --min-api 24 --lib "$JAR" \
   --output "$OUT/dex" $(find "$OUT/classes" -name '*.class')
-python - <<PY
-import zipfile
-with zipfile.ZipFile("$OUT/base.apk","a",zipfile.ZIP_DEFLATED) as z: z.write("$OUT/dex/classes.dex","classes.dex")
-PY
+(cd "$OUT/dex" && "$BT/aapt.exe" add ../base.apk classes.dex >/dev/null)
 "$BT/zipalign.exe" -f -p 4 "$OUT/base.apk" "$OUT/aligned.apk"
 java -jar "$BT/lib/apksigner.jar" sign --ks "$KS" --ks-pass "pass:$KS_PASS" \
   --out NaughtyNight.apk "$OUT/aligned.apk"

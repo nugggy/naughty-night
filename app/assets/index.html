@@ -157,6 +157,8 @@ const ART = {
   mask: S('0 0 100 100', `<path d="M84 32 C90 16 82 4 72 2 C76 12 74 22 70 30Z" fill="#ffcc4d"/><path d="M90 36 C100 24 98 10 90 6 C92 16 88 26 82 34Z" fill="#ff2e88"/><path d="M6 44 C6 32 20 28 34 32 C42 34 46 38 50 38 C54 38 58 34 66 32 C80 28 94 32 94 44 C94 62 80 70 66 66 C58 64 54 58 50 58 C46 58 42 64 34 66 C20 70 6 62 6 44Z" fill="#7b2cbf" stroke="#ffcc4d" stroke-width="3"/><path d="M18 46 C22 39 36 39 40 46 C36 51 22 51 18 46Z M60 46 C64 39 78 39 82 46 C78 51 64 51 60 46Z" fill="#14001f"/><path d="M14 40 C18 36 24 34 30 35" stroke="#fff" stroke-opacity=".4" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M50 58 V96" stroke="#ffcc4d" stroke-width="4" stroke-linecap="round"/>`),
   collar: S('0 0 100 100', `<ellipse cx="50" cy="46" rx="38" ry="28" fill="none" stroke="#1b0f0a" stroke-width="13"/><ellipse cx="50" cy="46" rx="38" ry="28" fill="none" stroke="#ff2e88" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round"/><rect x="42" y="68" width="16" height="9" rx="2" fill="#cfd6e6"/><circle cx="50" cy="86" r="10" fill="none" stroke="#ffcc4d" stroke-width="5"/>`),
   bull: S('0 0 100 100', `<path d="M24 34 C8 30 2 14 6 4 C12 16 22 22 34 24Z M76 34 C92 30 98 14 94 4 C88 16 78 22 66 24Z" fill="#f3e2c7"/><rect x="18" y="22" width="64" height="64" rx="14" fill="#ffcc4d" transform="rotate(-6 50 54)"/><rect x="18" y="22" width="64" height="64" rx="14" fill="none" stroke="#2a0640" stroke-width="3" transform="rotate(-6 50 54)"/><text x="50" y="70" font-family="Georgia,serif" font-weight="900" font-size="38" text-anchor="middle" fill="#2a0640" transform="rotate(-6 50 54)">W</text><circle cx="72" cy="36" r="4" fill="#ff2e88"/>`),
+  clapper: S('0 0 100 100', `<rect x="12" y="40" width="76" height="48" rx="6" fill="#2a0640" stroke="#ff2e88" stroke-width="3"/><path d="M12 30 L84 14 L88 30 L16 46Z" fill="#fff"/><path d="M28 26 L38 42 M48 22 L58 38 M68 18 L78 34" stroke="#2a0640" stroke-width="6"/><path d="M42 60 C42 55 46 53 50 57 C54 53 58 55 58 60 C58 65 50 72 50 72 C50 72 42 65 42 60Z" fill="#ff2e88"/>`),
+  stopwatch: S('0 0 100 100', `<rect x="42" y="4" width="16" height="10" rx="3" fill="#ffcc4d"/><path d="M76 22 L84 14" stroke="#ffcc4d" stroke-width="6" stroke-linecap="round"/><circle cx="50" cy="56" r="38" fill="#fff"/><circle cx="50" cy="56" r="38" fill="none" stroke="#ff2e88" stroke-width="6"/><path d="M50 56 V30" stroke="#2a0640" stroke-width="5" stroke-linecap="round"/><path d="M50 56 L68 66" stroke="#ff2e88" stroke-width="5" stroke-linecap="round"/><circle cx="50" cy="56" r="4" fill="#2a0640"/>`),
   ynm: S('0 0 100 100', `<rect x="10" y="8" width="80" height="24" rx="12" fill="#2ecc71"/><rect x="10" y="38" width="80" height="24" rx="12" fill="#ffcc4d"/><rect x="10" y="68" width="80" height="24" rx="12" fill="#ff2e63"/><g font-family="system-ui,sans-serif" font-weight="900" font-size="15" fill="#14001f" text-anchor="middle"><text x="50" y="25">YES</text><text x="50" y="55">MAYBE</text><text x="50" y="85" fill="#fff">NO</text></g>`)
 };
 // ---------- content ----------
@@ -327,7 +329,19 @@ const HW = {
   play: ["Flirt with {B} while your partner watches","{Bc} buys you a drink and gets your number","Slow dance with {B}","Kiss {B} while your partner watches","Give {B} a lap dance with your partner in the room","Make out with {B}. Your partner decides when it stops","Your partner writes the rules for a full hall pass with {B}","Your partner watches whatever the three of you have agreed to","A night where your partner owns you and decides how far it goes","Anything all three of you say yes to"],
   tasks: ["Your partner picks your outfit every time you see {B}","Flirt with one stranger a day and report back","Text your partner a teaser before every meeting with {B}","Tell your partner every detail afterwards. They're not allowed to touch you while you do","Your partner can't touch you for the whole X period, except to kiss your hand","Wear something of {B}'s to bed with your partner","Your partner buys you lingerie that {B} gets to see first","Send your partner a private selfie from every meeting","Your partner wears something you choose every time you see {B}","Plan the next roll together, in bed"]
 };
-const KINK_CATS =['All','Hotwife','Cuckold','Group','Power','Bondage','Spanking','Denial','Exhibition','Sensation','Roleplay','Jealousy','Collar','Praise'];
+const FANTASY = [
+  ['Setting', ["A hotel bar","A dark nightclub","Your bedroom, lights off","The back seat of a car","A massage studio","An office after hours","A beach at night","A private room at a strip club","A fancy restaurant","A cabin in the middle of nowhere"]],
+  ['Roles', ["Strangers meeting for the first time","Boss and new employee","Bartender and customer","Masseur and client","Cop and suspect","Personal trainer and client","Celebrity and superfan","Pool cleaner and homeowner","Spy and target","Exes who bump into each other"]],
+  ['In charge', ["You","Your partner","Whoever wins rock-paper-scissors","Switch every five minutes","Nobody. Total equals.","You, but they don't know it yet","Your partner, using words only","Whoever blushes first loses control","Your partner, until the safe word","You, until they beg"]],
+  ['The rule', ["No talking","No hands for the first ten minutes","The one not in charge keeps their eyes closed","Everything must be asked for politely","Whispers only","Clothes come off one piece at a time, on request","The one in charge stays fully dressed","No kissing on the lips","Every request gets a 'yes, sir' or 'yes, ma'am'","Lights stay on"]],
+  ['The twist', ["Someone might walk in at any moment","One of you is secretly married","You're being watched","Twenty-minute time limit","One of you confesses a secret halfway","Swap roles halfway through","A random alarm means freeze for 30 seconds","A friend dared you to do this","It's your last night before one of you leaves the country","Thin walls. Stay quiet."]]
+];
+const TEASE = [
+  [["Slow kisses on the neck and ears only",60],["Trace your fingertips along their arms, back and thighs",60],["Whisper what you're going to do to them later",45],["Kiss everywhere except their lips",60],["Massage their shoulders and back",90],["Freeze. Nobody moves. Eyes locked.",20],["Hands off completely. Just breathe on their skin.",30],["Slowly remove one item of their clothing",45],["Nibble along their jawline",45],["Hold their wrists. Kiss them, stop, make them wait.",45]],
+  [["Grind slowly in their lap, hands behind your back",60],["Kisses down their chest and stomach",60],["Remove one item of your own clothing while they watch",45],["Freeze. Not a sound.",20],["Hands everywhere, over their clothes",60],["Blindfold them. Ice cube anywhere you like.",60],["Pin their hands above their head and kiss them hard",45],["Switch: the teased becomes the teaser",60],["Hands off. Tell them exactly what you want.",45],["Inner thighs only. Lips and fingertips.",60]],
+  [["Take them right to the edge, then stop",60],["Freeze. If they move, the clock restarts.",30],["Undress them completely, slowly",60],["Hands tied behind their back. Anything you've agreed.",90],["Make them beg. Out loud.",45],["Hands off for a full minute. Look, don't touch.",60],["Back to the edge. Stop again.",60],["Bite and kiss your way along their body",60],["Switch for one minute, then switch back",60],["One last edge. They don't get to finish.",60]]
+];
+const KINK_CATS = ['All','Hotwife','Cuckold','Group','Power','Bondage','Spanking','Denial','Exhibition','Sensation','Roleplay','Jealousy','Collar','Praise'];
 const YNM = ["Spanking (giving)","Spanking (receiving)","Blindfolds","Being tied up","Tying them up","Hotwife / hall pass for you","Hall pass for your partner","Watching your partner with someone else","Being watched with someone else","Threesome","Swinging or partner swap","Group play","Sex somewhere semi-public","Dirty talk","Role play","Uniforms and costumes","Lingerie and dress-up","You in charge (Dom)","Them in charge (sub you)","Collar and leash","Orgasm denial and edging","Wax play","Ice play","Hair pulling","Biting and marks","Praise","Degradation (verbal)","Toys together","Filming yourselves (private)","Sending explicit photos","Watching each other touch yourselves","Food play","Voyeurism (watching others)","Exhibitionism (being watched)"];
 const POWER = [
   ["Kneel with your hands behind your back. Eyes down.",60],
@@ -368,7 +382,9 @@ const GAMES = [
   {id:'kink', name:'Kink Challenges', tag:'Hotwife, cuckold, bondage and more.', icon:'mask', run:gKink, kink:true},
   {id:'ynm', name:'Yes, No, Maybe', tag:'Find the kinks you both secretly want.', icon:'ynm', run:gYnm, kink:true},
   {id:'power', name:'Power Play', tag:'One Dom, one sub, a deck of orders.', icon:'collar', run:gPower, kink:true},
-  {id:'hotwife', name:'Hotwife Roller', tag:'Roll W, X, Y, Z. Live with it.', icon:'bull', run:gHotwife, kink:true}
+  {id:'hotwife', name:'Hotwife Roller', tag:'Roll W, X, Y, Z. Live with it.', icon:'bull', run:gHotwife, kink:true},
+  {id:'fantasy', name:'Fantasy Builder', tag:'Roll a whole role-play scene.', icon:'clapper', run:gFantasy, kink:true},
+  {id:'tease', name:'Tease Timer', tag:'The phone runs the scene. No mercy.', icon:'stopwatch', run:gTease, kink:true}
 ];
 
 function shell(title, inner) {
@@ -385,14 +401,14 @@ function route() {
 window.addEventListener('hashchange', route);
 
 function gate() {
-  app.innerHTML = `<div class="gate">${ART.lips}<div class="logo">Naughty Night</div><p>Eleven raunchy party games for consenting adults.<br>Strictly 18+. Anyone can pass on anything, any time.</p><button class="btn" id="yes">I'm 18+, let's play</button><button class="btn ghost" id="no">Get me out of here</button></div>`;
+  app.innerHTML = `<div class="gate">${ART.lips}<div class="logo">Naughty Night</div><p>Thirteen raunchy party games for consenting adults.<br>Strictly 18+. Anyone can pass on anything, any time.</p><button class="btn" id="yes">I'm 18+, let's play</button><button class="btn ghost" id="no">Get me out of here</button></div>`;
   $('#yes').onclick = () => { store.set('adult', true); route(); };
   $('#no').onclick = () => { app.innerHTML = `<div class="gate">${ART.shower}<p>Fair enough. Come back when you're feeling braver.</p></div>`; };
 }
 
 function home() {
   const tile = g => `<div class="tile${g.kink ? ' kinky' : ''}" data-id="${g.id}">${ART[g.icon]}<b>${g.name}</b><span>${g.tag}</span></div>`;
-  app.innerHTML = `<div id="updBanner"></div><div class="logo">Naughty Night</div><div class="sub">Eleven games. Zero shame. Lights optional.</div>
+  app.innerHTML = `<div id="updBanner"></div><div class="logo">Naughty Night</div><div class="sub">Thirteen games. Zero shame. Lights optional.</div>
   <div class="panel"><div class="ptitle">Who's playing</div><div class="chips" id="chips"></div>
   <form class="add" id="addp"><input id="pname" maxlength="16" placeholder="Add a player" autocomplete="off"><button class="btn sm">Add</button></form></div>
   <div class="grid">${GAMES.filter(g => !g.kink).map(tile).join('')}</div>
@@ -775,6 +791,114 @@ function gHotwife() { kinkGate('Hotwife Roller', () => {
   $('#rollAll').onclick = () => spin([0, 1, 2, 3]);
   $('#out').onclick = e => { const i = e.target.dataset.re; if (i != null) { flash('Re-rolling'); spin([+i]); } };
   draw();
+}); }
+
+function gFantasy() { kinkGate('Fantasy Builder', () => {
+  let roll = store.get('fbRoll', null), iv = null;
+  cleanup = () => clearInterval(iv);
+  shell('Fantasy Builder', `<div class="dice4" style="grid-template-columns:repeat(5,1fr)">${FANTASY.map((c, i) => `<div class="d10"><small>${i + 1}</small><b id="fd${i}">?</b></div>`).join('')}</div>
+  <div class="row"><button class="btn gold" id="rollAll">Roll the scene</button></div>
+  <div id="out"></div>
+  <div class="note">Agree the scene before you start. Re-roll anything that doesn't do it for you.</div>`);
+  const draw = () => {
+    FANTASY.forEach((c, i) => { $('#fd' + i).textContent = roll ? roll[i] : '?'; });
+    if (!roll) { $('#out').innerHTML = ''; return; }
+    $('#out').innerHTML = FANTASY.map(([name, opts], i) =>
+      `<div class="panel pop"><div class="ptitle" style="display:flex;justify-content:space-between;align-items:center;margin:0"><span>${name}</span><button class="btn sm ghost" data-re="${i}" style="padding:6px 12px;font-size:13px">Re-roll</button></div><p style="margin:6px 0 0;font-size:18px;font-weight:700">${esc(opts[roll[i]])}</p></div>`).join('');
+  };
+  const spin = cols => {
+    clearInterval(iv);
+    const next = roll ? roll.slice() : [0, 0, 0, 0, 0];
+    let n = 0;
+    iv = setInterval(() => {
+      cols.forEach(i => { $('#fd' + i).textContent = rnd(10); });
+      beep(300 + rnd(500), .03, 'square', .03);
+      if (++n > 12) {
+        clearInterval(iv);
+        cols.forEach(i => { next[i] = rnd(10); });
+        roll = next; store.set('fbRoll', roll); draw();
+        beep(660, .25, 'triangle'); buzz(80);
+      }
+    }, 70);
+  };
+  $('#rollAll').onclick = () => spin([0, 1, 2, 3, 4]);
+  $('#out').onclick = e => { const i = e.target.dataset.re; if (i != null) spin([+i]); };
+  draw();
+}); }
+
+function gTease() { kinkGate('Tease Timer', () => {
+  const p = plist().length >= 2 ? plist() : ['You', 'Them'];
+  let teaser = 0, teased = 1, heat = store.get('ttHeat', 0), mins = 10, iv = null;
+  cleanup = () => clearInterval(iv);
+  const setup = () => {
+    clearInterval(iv);
+    const opts = id => `<div class="chiprow" id="${id}">${p.map((n, i) => `<button data-i="${i}">${esc(n)}</button>`).join('')}</div>`;
+    shell('Tease Timer', `<div class="card pop" style="min-height:0">${ART.stopwatch}<p style="margin:10px 0 0;font-size:16px;color:var(--muted);line-height:1.5">The phone calls every move. When the alarm goes, you switch, straight away. Lay it face up where you can both see it.</p></div>
+    <div class="ptitle" style="margin-top:16px">Teaser</div>${opts('ter')}<div class="ptitle">Being teased</div>${opts('ted')}
+    <div class="ptitle">Intensity</div><div class="seg" id="heat">${['Slow burn', 'Heated', 'Merciless'].map((h, i) => `<button data-h="${i}">${h}</button>`).join('')}</div>
+    <div class="ptitle">Length</div><div class="seg" id="len">${[5, 10, 15].map(n => `<button data-n="${n}">${n} min</button>`).join('')}</div>
+    <div class="row"><button class="btn hot" id="start">Start the clock</button></div>`);
+    const marks = () => {
+      $('#ter').querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.i === teaser));
+      $('#ted').querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.i === teased));
+      $('#heat').querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.h === heat));
+      $('#len').querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.n === mins));
+      $('#start').disabled = teaser === teased;
+    };
+    marks();
+    $('#ter').onclick = e => { if (e.target.dataset.i) { teaser = +e.target.dataset.i; marks(); } };
+    $('#ted').onclick = e => { if (e.target.dataset.i) { teased = +e.target.dataset.i; marks(); } };
+    $('#heat').onclick = e => { if (e.target.dataset.h) { heat = +e.target.dataset.h; store.set('ttHeat', heat); marks(); } };
+    $('#len').onclick = e => { if (e.target.dataset.n) { mins = +e.target.dataset.n; marks(); } };
+    $('#start').onclick = run;
+  };
+  const run = () => {
+    const steps = []; let total = 0, pool = [];
+    while (total < mins * 60) { if (!pool.length) pool = shuffle(TEASE[heat]); const s = pool.pop(); steps.push(s); total += s[1]; }
+    let k = -1, end = 0, left = 0, paused = false;
+    const fmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+    shell('Tease Timer', `<div class="who"><b>${esc(p[teaser])}</b> teases <b>${esc(p[teased])}</b> &middot; <span id="stepNo"></span></div>
+    <div class="meter"><div id="prog" style="width:0"></div></div>
+    <div class="card"><span class="tag" id="tag"></span><p id="txt" style="margin:0;font-size:24px;font-weight:700"></p><div class="timer" id="tm"></div></div>
+    <div class="who" id="nextUp" style="margin-top:10px"></div>
+    <div class="row"><button class="btn ghost" id="pause">Pause</button><button class="btn ghost" id="skip">Skip</button></div>
+    <div class="row"><button class="btn hot" id="stop">Safe word: stop</button></div>`);
+    const step = () => {
+      k++;
+      if (k >= steps.length) return finish('Time. Scene over.');
+      left = steps[k][1]; end = Date.now() + left * 1000;
+      $('#txt').textContent = steps[k][0];
+      $('#tag').textContent = /^Freeze/.test(steps[k][0]) ? 'Freeze' : /^Switch/.test(steps[k][0]) ? 'Switch' : ['Slow burn', 'Heated', 'Merciless'][heat];
+      $('#stepNo').textContent = `move ${k + 1} of ${steps.length}`;
+      $('#prog').style.width = (k / steps.length * 100) + '%';
+      $('#nextUp').textContent = k + 1 < steps.length ? 'Next: ' + steps[k + 1][0] : 'Last move';
+      const c = $('#txt').parentNode; c.classList.remove('pop'); void c.offsetWidth; c.classList.add('pop');
+      beep(880, .35, 'triangle'); buzz([120, 60, 120]);
+    };
+    const tick = () => {
+      if (paused) return;
+      left = Math.max(0, Math.ceil((end - Date.now()) / 1000));
+      const t = $('#tm'); if (t) t.textContent = fmt(left);
+      if (left <= 3 && left > 0) beep(440, .05, 'sine', .04);
+      if (left <= 0) step();
+    };
+    $('#pause').onclick = () => {
+      paused = !paused;
+      if (!paused) end = Date.now() + left * 1000;
+      $('#pause').textContent = paused ? 'Resume' : 'Pause';
+    };
+    $('#skip').onclick = () => { paused = false; $('#pause').textContent = 'Pause'; step(); };
+    $('#stop').onclick = () => finish('Safe word called. Everything stops, no questions asked.');
+    step(); tick();
+    iv = setInterval(tick, 250);
+  };
+  const finish = why => {
+    clearInterval(iv);
+    shell('Tease Timer', `<div class="card pop">${ART.heart}<p style="margin:12px 0 6px;font-weight:700">${why}</p><p style="margin:0;font-size:16px;color:var(--muted);line-height:1.5">What happens next is up to you two. Water, a cuddle, and tell each other the best bit.</p></div>
+    <div class="row"><button class="btn" id="again">Go again</button></div>`);
+    $('#again').onclick = setup;
+  };
+  setup();
 }); }
 
 // ---------- updates ----------
