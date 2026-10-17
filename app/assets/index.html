@@ -1,0 +1,932 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Naughty Night</title>
+<style>
+:root{--bg:#14001f;--pink:#ff2e88;--hot:#ff5f6d;--purple:#9b5cff;--gold:#ffcc4d;--text:#fff1f8;--muted:#c9a8d6;--card:rgba(255,255,255,.07);--line:rgba(255,255,255,.14)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-user-select:none;user-select:none}
+body{background:radial-gradient(ellipse at 50% -10%,#4a0d6e 0%,#14001f 65%) fixed}
+#app{max-width:560px;margin:0 auto;padding:16px 16px 48px}
+button{font:inherit;color:inherit}
+.logo{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:700;font-size:46px;text-align:center;margin:14px 0 0;background:linear-gradient(90deg,var(--pink),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{text-align:center;color:var(--muted);margin:4px 0 18px;font-size:14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tile{background:linear-gradient(160deg,rgba(255,46,136,.20),rgba(155,92,255,.12));border:1px solid var(--line);border-radius:20px;padding:14px 10px 12px;text-align:center;cursor:pointer;transition:transform .15s}
+.tile:active{transform:scale(.95)}
+.tile svg{width:66px;height:66px;filter:drop-shadow(0 4px 12px rgba(255,46,136,.5))}
+.tile b{display:block;font-size:16px;margin-top:6px}
+.tile span{display:block;font-size:12px;color:var(--muted);margin-top:3px;line-height:1.3}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px;margin:0 0 16px}
+.ptitle{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.chip{background:rgba(255,46,136,.22);border:1px solid rgba(255,46,136,.5);border-radius:999px;padding:5px 6px 5px 12px;font-size:14px;display:inline-flex;align-items:center;gap:6px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.3);display:inline-grid;place-items:center;cursor:pointer}
+form.add{display:flex;gap:8px}
+input{flex:1;min-width:0;background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:12px;color:var(--text);padding:10px 12px;font-size:15px;-webkit-user-select:text;user-select:text}
+.btn{display:block;width:100%;border:0;border-radius:16px;padding:15px 16px;font-size:17px;font-weight:700;background:linear-gradient(135deg,var(--pink),var(--purple));box-shadow:0 6px 20px rgba(255,46,136,.35);cursor:pointer;transition:transform .1s}
+.btn:active{transform:scale(.97)}
+.btn.hot{background:linear-gradient(135deg,#ff7a18,var(--hot))}
+.btn.gold{background:linear-gradient(135deg,var(--gold),#ff8a00);color:#2a0640}
+.btn.ghost{background:transparent;border:1px solid var(--line);box-shadow:none;font-weight:600}
+.btn.sm{width:auto;padding:10px 16px;font-size:15px}
+.btn:disabled{opacity:.4}
+.row{display:flex;gap:10px;margin:12px 0}
+.row>*{flex:1}
+.top{display:flex;align-items:center;gap:10px;margin:4px 0 14px}
+.top h2{flex:1;margin:0;font-family:Georgia,serif;font-style:italic;font-size:26px;background:linear-gradient(90deg,var(--pink),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.back{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--card);font-size:26px;line-height:1;cursor:pointer}
+.seg{display:flex;background:rgba(0,0,0,.3);border-radius:14px;padding:4px;margin-bottom:12px}
+.seg button{flex:1;border:0;background:transparent;padding:10px 4px;border-radius:10px;font-weight:600;color:var(--muted);cursor:pointer}
+.seg button.on{background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff}
+.card{background:linear-gradient(160deg,rgba(255,255,255,.10),rgba(255,255,255,.03));border:1px solid var(--line);border-radius:24px;padding:22px 18px;min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:21px;line-height:1.4;position:relative;overflow:hidden}
+.card .tag{position:absolute;top:12px;left:14px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.card svg{width:90px;height:90px}
+.pop{animation:pop .35s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{0%{transform:scale(.7) rotate(-4deg);opacity:0}100%{transform:none;opacity:1}}
+.shake{animation:shake .5s}
+@keyframes shake{0%,100%{transform:none}20%{transform:translateX(-10px) rotate(-3deg)}40%{transform:translateX(10px) rotate(3deg)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+.who{text-align:center;color:var(--muted);margin:2px 0 12px;font-size:15px}
+.who b{color:var(--text);font-size:19px}
+.note{text-align:center;color:var(--muted);font-size:12px;margin-top:18px;line-height:1.5}
+.dice{display:flex;justify-content:center;gap:10px;margin:18px 0}
+.die{width:31%;aspect-ratio:1;border-radius:20px;display:grid;place-items:center;text-align:center;font-weight:800;font-size:17px;padding:6px;color:#2a0640;background:linear-gradient(145deg,#fff,#ffd6ea);box-shadow:inset 0 -6px 0 rgba(0,0,0,.12),0 8px 20px rgba(255,46,136,.4)}
+.die.p{background:linear-gradient(145deg,#ffb3d9,#ff2e88);color:#fff}
+.die.g{background:linear-gradient(145deg,#fff1b8,#ffcc4d)}
+.die.roll{animation:roll .12s linear infinite}
+@keyframes roll{0%{transform:rotate(-8deg) translateY(-4px)}50%{transform:rotate(8deg) translateY(2px)}100%{transform:rotate(-8deg) translateY(-4px)}}
+.table{position:relative;width:100%;aspect-ratio:1;max-width:400px;margin:4px auto 10px;border-radius:50%;background:radial-gradient(circle,#3b0d55 0%,#21032f 70%);border:2px solid rgba(255,46,136,.35);box-shadow:0 0 40px rgba(255,46,136,.25) inset}
+.table .bottle{position:absolute;left:50%;top:50%;width:26%;height:62%;margin-left:-13%;margin-top:-31%;transition:transform 3.6s cubic-bezier(.12,.75,.15,1)}
+.table .bottle svg{width:100%;height:100%}
+.seat{position:absolute;left:50%;top:50%;transform-origin:0 0;white-space:nowrap}
+.seat span{display:inline-block;transform:translate(-50%,-50%);background:rgba(0,0,0,.45);border:1px solid var(--line);border-radius:999px;padding:5px 11px;font-size:13px;font-weight:600;transition:all .3s}
+.seat.win span{background:var(--pink);border-color:#fff;transform:translate(-50%,-50%) scale(1.25);box-shadow:0 0 20px var(--pink)}
+.layers{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:6px 0 14px}
+.layer{padding:6px 11px;border-radius:999px;font-size:13px;background:rgba(155,92,255,.25);border:1px solid rgba(155,92,255,.6);transition:all .5s}
+.layer.gone{opacity:.25;text-decoration:line-through;transform:translateY(-6px) rotate(-6deg)}
+.opts{display:grid;gap:8px;margin-top:12px}
+.opt{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:13px 14px;text-align:left;font-size:16px;cursor:pointer}
+.opt.right{background:rgba(46,204,113,.3);border-color:#2ecc71}
+.opt.wrong{background:rgba(255,46,99,.3);border-color:var(--hot)}
+.q{font-size:19px;line-height:1.4;text-align:center;margin:8px 0 2px}
+.meter{height:10px;border-radius:999px;background:rgba(0,0,0,.35);overflow:hidden;margin:6px 0 4px}
+.meter div{height:100%;background:linear-gradient(90deg,var(--purple),var(--pink),var(--gold));transition:width .5s}
+.slots{display:flex;gap:8px;justify-content:center;background:linear-gradient(180deg,#2b0040,#120019);border:3px solid var(--gold);border-radius:22px;padding:14px;box-shadow:0 0 30px rgba(255,204,77,.3)}
+.reel{flex:1;aspect-ratio:3/4;background:linear-gradient(180deg,#fff,#ffe3f1 50%,#fff);border-radius:14px;display:grid;place-items:center;overflow:hidden;box-shadow:inset 0 6px 10px rgba(0,0,0,.25),inset 0 -6px 10px rgba(0,0,0,.25)}
+.reel svg{width:76%;height:76%}
+.reel.spin svg{animation:blur .1s linear infinite}
+@keyframes blur{0%{transform:translateY(-30%);opacity:.6}100%{transform:translateY(30%);opacity:.6}}
+.credits{text-align:center;font-size:15px;color:var(--gold);margin:10px 0}
+.wyr{display:grid;gap:10px}
+.wyr button{border:0;border-radius:20px;padding:22px 16px;font-size:18px;line-height:1.35;min-height:120px;cursor:pointer;position:relative;overflow:hidden;color:#fff}
+.wyr .a{background:linear-gradient(135deg,#ff2e88,#c21e6a)}
+.wyr .b{background:linear-gradient(135deg,#7b3cff,#4d1cb0)}
+.wyr .or{text-align:center;font-family:Georgia,serif;font-style:italic;color:var(--gold);font-size:20px;margin:-4px 0}
+.wyr .pct{position:absolute;right:12px;bottom:8px;font-size:22px;font-weight:800;opacity:0;transition:opacity .4s}
+.wyr.done .pct{opacity:1}
+.wyr button.pick{outline:3px solid var(--gold)}
+canvas{display:block;width:100%;border-radius:20px;background:linear-gradient(180deg,#2a0640,#14001f);border:1px solid var(--line);touch-action:none}
+.hud{display:flex;justify-content:space-between;font-weight:700;margin-bottom:8px}
+.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(20,0,31,.8);border-radius:20px;text-align:center;padding:20px}
+.stage{position:relative}
+.overlay svg{width:110px;height:110px}
+.date{display:flex;flex-direction:column;align-items:center}
+.date svg{width:170px;height:170px}
+.bubble{background:#fff;color:#2a0640;border-radius:20px;padding:14px 16px;font-size:18px;line-height:1.35;position:relative;margin:4px 0 6px;text-align:center;font-weight:600}
+.bubble:before{content:"";position:absolute;top:-10px;left:50%;margin-left:-10px;border:10px solid transparent;border-top:0;border-bottom-color:#fff}
+.pickdate{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pickdate button{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:10px 4px;cursor:pointer}
+.pickdate svg{width:100%;height:auto}
+.gate{min-height:90vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px}
+.gate svg{width:140px;height:140px}
+.gate p{color:var(--muted);line-height:1.5;margin:0 0 6px}
+.score{font-size:38px;font-weight:800;color:var(--gold)}
+.section{font-family:Georgia,serif;font-style:italic;font-weight:700;font-size:24px;margin:26px 0 12px;color:var(--gold)}
+.tile.kinky{background:linear-gradient(160deg,rgba(20,0,31,.9),rgba(123,44,191,.35));border-color:rgba(255,204,77,.35)}
+.banner{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--gold),#ff8a00);color:#2a0640;border-radius:16px;padding:10px 12px;font-weight:700;font-size:14px;margin-bottom:6px}
+.banner span{flex:1}
+.banner button{border:0;border-radius:12px;background:#2a0640;color:#fff;padding:9px 14px;font-weight:700;cursor:pointer}
+.chiprow{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:10px;scrollbar-width:none}
+.chiprow button{flex:none;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 13px;font-size:13px;color:var(--muted);cursor:pointer}
+.chiprow button.on{background:var(--gold);color:#2a0640;border-color:var(--gold);font-weight:700}
+.ynm{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.ynm button{border:0;border-radius:16px;padding:16px 4px;font-weight:800;font-size:16px;cursor:pointer}
+.ynm .y{background:#2ecc71;color:#0b2a17}.ynm .m{background:var(--gold);color:#2a0640}.ynm .n{background:var(--hot);color:#fff}
+.list{list-style:none;padding:0;margin:8px 0 16px;display:grid;gap:6px}
+.list li{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:15px}
+.timer{font-size:54px;font-weight:900;text-align:center;color:var(--gold);font-variant-numeric:tabular-nums;margin:6px 0}
+.flash{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);font-size:30px;font-weight:900;color:var(--gold);text-shadow:0 0 20px var(--pink);pointer-events:none;animation:flash 1s forwards;z-index:9;white-space:nowrap}
+@keyframes flash{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}100%{opacity:0;transform:translate(-50%,-90%) scale(1)}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const app = $('#app');
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('nn_' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('nn_' + k, JSON.stringify(v)); } catch (e) {} }
+};
+const rnd = n => Math.floor(Math.random() * n);
+const pick = a => a[rnd(a.length)];
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = rnd(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const deck = arr => { let d = []; return () => { if (!d.length) d = shuffle(arr); return d.pop(); }; };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let players = store.get('players', ['Player 1', 'Player 2']);
+let cleanup = null;
+
+// ---------- sound ----------
+let actx = null;
+function beep(freq, dur, type, vol) {
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = type || 'sine'; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol || .08, actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.0001, actx.currentTime + (dur || .15));
+    o.connect(g); g.connect(actx.destination); o.start(); o.stop(actx.currentTime + (dur || .15));
+  } catch (e) {}
+}
+const buzz = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} };
+function flash(txt) { const d = document.createElement('div'); d.className = 'flash'; d.textContent = txt; document.body.appendChild(d); setTimeout(() => d.remove(), 1000); }
+
+// ---------- art ----------
+const S = (vb, inner) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}">${inner}</svg>`;
+const ART = {
+  lips: S('0 0 100 70', `<path d="M4 35 C18 8 38 6 50 18 C62 6 82 8 96 35 C80 64 20 64 4 35Z" fill="#ff2e63"/><path d="M4 35 C30 42 70 42 96 35" stroke="#7a0020" stroke-width="3.5" fill="none"/><path d="M26 22 C34 17 42 18 46 23" stroke="#fff" stroke-opacity=".6" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M34 50 C42 54 58 54 66 50" stroke="#fff" stroke-opacity=".35" stroke-width="3" fill="none" stroke-linecap="round"/>`),
+  peach: S('0 0 100 100', `<path d="M50 30 C22 12 4 38 12 64 C20 88 48 94 50 94 C52 94 80 88 88 64 C96 38 78 12 50 30Z" fill="#ff9a76"/><path d="M50 30 C22 12 4 38 12 64 C16 76 26 84 36 88 C20 70 22 40 50 30Z" fill="#ff7b6b" opacity=".6"/><path d="M50 33 C43 52 45 76 50 92" stroke="#e45b4f" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M50 30 C54 14 70 6 84 10 C74 22 62 28 50 30Z" fill="#43aa8b"/><ellipse cx="70" cy="48" rx="7" ry="10" fill="#fff" opacity=".35"/>`),
+  eggplant: S('0 0 100 100', `<path d="M72 22 C88 32 84 58 66 74 C48 92 18 96 10 86 C3 76 16 60 34 45 C50 32 56 16 72 22Z" fill="#7b2cbf"/><path d="M28 72 C38 64 48 55 55 46" stroke="#fff" stroke-opacity=".35" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M60 20 L76 6 L74 22 L92 22 L76 32 L70 26Z" fill="#43aa8b"/>`),
+  cherry: S('0 0 100 100', `<path d="M30 62 C34 40 46 20 66 8 M70 62 C66 40 62 24 66 8" stroke="#3d7a35" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M66 8 C78 6 88 12 90 20 C80 22 70 18 66 8Z" fill="#43aa8b"/><circle cx="30" cy="70" r="20" fill="#e0103a"/><circle cx="70" cy="70" r="20" fill="#e0103a"/><circle cx="23" cy="63" r="6" fill="#fff" opacity=".5"/><circle cx="63" cy="63" r="6" fill="#fff" opacity=".5"/>`),
+  fire: S('0 0 100 100', `<path d="M50 6 C56 26 80 36 80 62 C80 82 66 94 50 94 C34 94 20 82 20 62 C20 46 30 38 34 26 C40 38 44 42 48 42 C46 28 46 16 50 6Z" fill="#ff5a1f"/><path d="M50 40 C54 54 68 60 68 74 C68 86 60 92 50 92 C40 92 32 86 32 74 C32 64 40 60 42 52 C46 58 48 58 50 58 C48 52 48 46 50 40Z" fill="#ffcc4d"/>`),
+  heart: S('0 0 100 100', `<path d="M50 90 C20 66 5 50 5 31 C5 16 17 6 30 6 C40 6 47 12 50 19 C53 12 60 6 70 6 C83 6 95 16 95 31 C95 50 80 66 50 90Z" fill="#ff2e63"/><path d="M22 22 C26 16 32 15 36 16" stroke="#fff" stroke-opacity=".6" stroke-width="5" fill="none" stroke-linecap="round"/>`),
+  cuffs: S('0 0 100 100', `<circle cx="28" cy="62" r="20" fill="none" stroke="#cfd6e6" stroke-width="9"/><circle cx="72" cy="62" r="20" fill="none" stroke="#cfd6e6" stroke-width="9"/><circle cx="28" cy="62" r="20" fill="none" stroke="#ff2e88" stroke-width="3" stroke-dasharray="4 5"/><circle cx="72" cy="62" r="20" fill="none" stroke="#ff2e88" stroke-width="3" stroke-dasharray="4 5"/><path d="M40 40 C44 30 56 30 60 40" stroke="#9aa3b8" stroke-width="6" fill="none"/>`),
+  devil: S('0 0 100 100', `<path d="M22 34 C12 22 14 8 18 2 C22 14 30 20 38 22Z M78 34 C88 22 86 8 82 2 C78 14 70 20 62 22Z" fill="#ff2e63"/><circle cx="50" cy="56" r="38" fill="#c2185b"/><circle cx="50" cy="56" r="38" fill="url(#dg)"/><defs><radialGradient id="dg" cx=".35" cy=".3"><stop offset="0" stop-color="#ff5fa0"/><stop offset="1" stop-color="#9b0f4a"/></radialGradient></defs><path d="M30 44 L44 50 M70 44 L56 50" stroke="#2a0010" stroke-width="5" stroke-linecap="round"/><circle cx="38" cy="54" r="5" fill="#fff"/><circle cx="62" cy="54" r="5" fill="#fff"/><path d="M30 68 C40 82 60 82 70 68 C60 74 40 74 30 68Z" fill="#2a0010"/><path d="M56 74 L60 82 L64 74Z" fill="#fff"/>`),
+  bottle: S('0 0 40 100', `<rect x="15" y="2" width="10" height="8" rx="2" fill="#ffcc4d"/><path d="M15 10 H25 V30 C25 36 34 40 34 50 V92 C34 96 31 98 28 98 H12 C9 98 6 96 6 92 V50 C6 40 15 36 15 30Z" fill="#1f9d55"/><path d="M10 52 V90" stroke="#fff" stroke-opacity=".4" stroke-width="3" stroke-linecap="round"/><rect x="8" y="58" width="24" height="20" rx="3" fill="#ff2e88"/><path d="M14 68 C16 64 19 64 20 67 C21 64 24 64 26 68 C24 72 20 74 20 74 C20 74 16 72 14 68Z" fill="#fff"/>`),
+  bubbly: S('0 0 100 100', `<path d="M36 8 H64 C66 34 60 52 50 54 C40 52 34 34 36 8Z" fill="#ffcc4d" opacity=".9"/><path d="M36 8 H64 C64 14 64 16 63 20 H37 C36 16 36 14 36 8Z" fill="#fff" opacity=".7"/><path d="M50 54 V86 M36 90 H64" stroke="#e8e0ff" stroke-width="5" stroke-linecap="round"/><circle cx="46" cy="30" r="2.5" fill="#fff"/><circle cx="54" cy="40" r="2" fill="#fff"/><circle cx="50" cy="24" r="1.8" fill="#fff"/>`),
+  shower: S('0 0 100 100', `<path d="M24 54 C10 54 8 34 22 32 C22 18 40 12 50 22 C58 10 80 14 80 30 C94 30 94 54 78 54Z" fill="#9fc6e8"/><path d="M30 64 L26 76 M48 64 L44 80 M66 64 L62 76" stroke="#5ea8ff" stroke-width="5" stroke-linecap="round"/><path d="M38 40 L44 44 M62 40 L56 44" stroke="#2a3b55" stroke-width="3" stroke-linecap="round"/><path d="M42 50 C46 46 54 46 58 50" stroke="#2a3b55" stroke-width="3" fill="none" stroke-linecap="round"/>`),
+  dice: S('0 0 100 100', `<rect x="10" y="10" width="80" height="80" rx="18" fill="#fff"/><rect x="10" y="10" width="80" height="80" rx="18" fill="none" stroke="#ff2e88" stroke-width="4"/><g fill="#ff2e88"><path d="M26 32 C26 28 29 26 31 28 C33 26 36 28 36 32 C36 35 31 38 31 38 C31 38 26 35 26 32Z"/><path d="M45 52 C45 48 48 46 50 48 C52 46 55 48 55 52 C55 55 50 58 50 58 C50 58 45 55 45 52Z"/><path d="M64 72 C64 68 67 66 69 68 C71 66 74 68 74 72 C74 75 69 78 69 78 C69 78 64 75 64 72Z"/></g>`),
+  martini: S('0 0 100 100', `<path d="M14 16 H86 L50 54Z" fill="#ff2e88" opacity=".85"/><path d="M14 16 H86 L80 22 H20Z" fill="#fff" opacity=".5"/><path d="M50 54 V86 M34 90 H66" stroke="#e8e0ff" stroke-width="5" stroke-linecap="round"/><path d="M58 4 L44 34" stroke="#ffcc4d" stroke-width="3"/><circle cx="46" cy="30" r="7" fill="#7cb342"/><circle cx="46" cy="30" r="2.5" fill="#e53935"/>`),
+  undies: S('0 0 100 100', `<path d="M8 24 H92 L88 44 C72 50 60 64 58 84 H42 C40 64 28 50 12 44Z" fill="#ff2e88"/><path d="M8 24 H92 V32 H8Z" fill="#2a0640"/><g fill="#ffcc4d"><circle cx="16" cy="28" r="2.5"/><circle cx="28" cy="28" r="2.5"/><circle cx="40" cy="28" r="2.5"/><circle cx="52" cy="28" r="2.5"/><circle cx="64" cy="28" r="2.5"/><circle cx="76" cy="28" r="2.5"/><circle cx="88" cy="28" r="2.5"/></g><path d="M43 46 C43 42 46 40 50 43 C54 40 57 42 57 46 C57 50 50 55 50 55 C50 55 43 50 43 46Z" fill="#fff"/>`),
+  dirty: S('0 0 100 100', `<circle cx="18" cy="88" r="5" fill="#fff"/><circle cx="28" cy="76" r="7" fill="#fff"/><path d="M26 60 C8 60 6 36 24 34 C24 14 48 6 58 20 C70 6 94 14 92 36 C100 50 90 64 76 62 C70 72 40 72 26 60Z" fill="#fff"/><g transform="translate(34 18) scale(.42)"><path d="M72 22 C88 32 84 58 66 74 C48 92 18 96 10 86 C3 76 16 60 34 45 C50 32 56 16 72 22Z" fill="#7b2cbf"/><path d="M60 20 L76 6 L74 22 L92 22 L76 32 L70 26Z" fill="#43aa8b"/></g><g transform="translate(58 28) scale(.3)"><path d="M50 30 C22 12 4 38 12 64 C20 88 48 94 50 94 C52 94 80 88 88 64 C96 38 78 12 50 30Z" fill="#ff9a76"/><path d="M50 33 C43 52 45 76 50 92" stroke="#e45b4f" stroke-width="5" fill="none"/></g>`),
+  wyr: S('0 0 100 100', `<circle cx="34" cy="50" r="30" fill="#ff2e88"/><circle cx="66" cy="50" r="30" fill="#7b3cff" opacity=".9"/><text x="50" y="58" font-size="22" font-weight="900" text-anchor="middle" fill="#fff" font-family="Georgia,serif" font-style="italic">or</text>`),
+  mask: S('0 0 100 100', `<path d="M84 32 C90 16 82 4 72 2 C76 12 74 22 70 30Z" fill="#ffcc4d"/><path d="M90 36 C100 24 98 10 90 6 C92 16 88 26 82 34Z" fill="#ff2e88"/><path d="M6 44 C6 32 20 28 34 32 C42 34 46 38 50 38 C54 38 58 34 66 32 C80 28 94 32 94 44 C94 62 80 70 66 66 C58 64 54 58 50 58 C46 58 42 64 34 66 C20 70 6 62 6 44Z" fill="#7b2cbf" stroke="#ffcc4d" stroke-width="3"/><path d="M18 46 C22 39 36 39 40 46 C36 51 22 51 18 46Z M60 46 C64 39 78 39 82 46 C78 51 64 51 60 46Z" fill="#14001f"/><path d="M14 40 C18 36 24 34 30 35" stroke="#fff" stroke-opacity=".4" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M50 58 V96" stroke="#ffcc4d" stroke-width="4" stroke-linecap="round"/>`),
+  collar: S('0 0 100 100', `<ellipse cx="50" cy="46" rx="38" ry="28" fill="none" stroke="#1b0f0a" stroke-width="13"/><ellipse cx="50" cy="46" rx="38" ry="28" fill="none" stroke="#ff2e88" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round"/><rect x="42" y="68" width="16" height="9" rx="2" fill="#cfd6e6"/><circle cx="50" cy="86" r="10" fill="none" stroke="#ffcc4d" stroke-width="5"/>`),
+  ynm: S('0 0 100 100', `<rect x="10" y="8" width="80" height="24" rx="12" fill="#2ecc71"/><rect x="10" y="38" width="80" height="24" rx="12" fill="#ffcc4d"/><rect x="10" y="68" width="80" height="24" rx="12" fill="#ff2e63"/><g font-family="system-ui,sans-serif" font-weight="900" font-size="15" fill="#14001f" text-anchor="middle"><text x="50" y="25">YES</text><text x="50" y="55">MAYBE</text><text x="50" y="85" fill="#fff">NO</text></g>`)
+};
+function face(mood, look) {
+  const skin = look.skin, hair = look.hair;
+  let back = '', front = '';
+  if (look.style === 'long') { back = `<path d="M18 50 C14 20 34 8 50 8 C66 8 86 20 82 50 L86 96 H14Z" fill="${hair}"/>`; front = `<path d="M24 44 C26 22 40 16 52 16 C64 16 76 24 76 40 C66 30 52 26 40 34 C34 38 28 42 24 44Z" fill="${hair}"/>`; }
+  else if (look.style === 'short') { front = `<path d="M22 46 C18 18 40 8 54 10 C70 12 82 24 78 46 C74 34 70 28 62 26 C52 30 38 30 28 30 C24 34 22 40 22 46Z" fill="${hair}"/>`; }
+  else { front = `<path d="M22 44 C20 22 34 10 50 10 C58 10 64 12 70 16 C74 6 86 10 84 22 C82 30 78 32 78 44 C72 30 60 24 48 28 C36 32 28 38 22 44Z" fill="${hair}"/><path d="M70 16 C74 6 86 10 84 22" fill="${hair}"/>`; }
+  const eyes = {
+    love: `<path d="M32 46 C32 42 35 40 37.5 43 C40 40 43 42 43 46 C43 50 37.5 54 37.5 54 C37.5 54 32 50 32 46Z M57 46 C57 42 60 40 62.5 43 C65 40 68 42 68 46 C68 50 62.5 54 62.5 54 C62.5 54 57 50 57 46Z" fill="#ff2e63"/>`,
+    happy: `<path d="M31 49 C34 43 41 43 44 49 M56 49 C59 43 66 43 69 49" stroke="#2a0640" stroke-width="3.5" fill="none" stroke-linecap="round"/>`,
+    meh: `<circle cx="38" cy="48" r="4" fill="#2a0640"/><circle cx="62" cy="48" r="4" fill="#2a0640"/><path d="M31 39 H44 M56 39 H69" stroke="#2a0640" stroke-width="3" stroke-linecap="round"/>`,
+    sad: `<circle cx="38" cy="49" r="4" fill="#2a0640"/><circle cx="62" cy="49" r="4" fill="#2a0640"/><path d="M31 42 L44 38 M56 38 L69 42" stroke="#2a0640" stroke-width="3" stroke-linecap="round"/>`
+  }[mood];
+  const mouth = {
+    love: `<path d="M38 64 C42 76 58 76 62 64Z" fill="#b0103a"/><path d="M44 70 C48 73 52 73 56 70" stroke="#ff8fb0" stroke-width="3" fill="none"/>`,
+    happy: `<path d="M38 64 C44 72 56 72 62 64" stroke="#b0103a" stroke-width="4" fill="none" stroke-linecap="round"/>`,
+    meh: `<path d="M41 67 H59" stroke="#b0103a" stroke-width="4" stroke-linecap="round"/>`,
+    sad: `<path d="M39 71 C45 63 55 63 61 71" stroke="#b0103a" stroke-width="4" fill="none" stroke-linecap="round"/>`
+  }[mood];
+  const blush = (mood === 'love' || mood === 'happy') ? `<ellipse cx="28" cy="60" rx="7" ry="4" fill="#ff5f8f" opacity=".5"/><ellipse cx="72" cy="60" rx="7" ry="4" fill="#ff5f8f" opacity=".5"/>` : '';
+  const extra = look.extra || '';
+  return S('0 0 100 100', `<circle cx="50" cy="50" r="49" fill="${look.bg}"/>${back}<path d="M38 74 H62 V96 H38Z" fill="${skin}"/><path d="M14 100 C18 84 32 80 50 80 C68 80 82 84 86 100Z" fill="${look.top}"/><ellipse cx="50" cy="50" rx="28" ry="32" fill="${skin}"/>${front}${blush}${eyes}${mouth}${extra}`);
+}
+
+// ---------- content ----------
+const TOD = {
+  truth: [
+    ["What was your first impression of the person on your left?","Who here would you most like to be stuck in a lift with?","What's the cheesiest pick-up line that actually worked on you?","What's your most embarrassing crush ever?","What body part do you get complimented on most?","Describe your ideal date in three words.","Have you ever sent a flirty text to the wrong person? What did it say?","Who was your first kiss, and score it out of ten.","What's the most romantic thing you've ever done for someone?","Which celebrity would you drop everything for?","Have you ever had a crush on someone in this room?","What's the first thing you notice about someone you fancy?"],
+    ["What's the most daring place you've ever made out?","What item of clothing makes you feel sexiest?","What's a fantasy you've never said out loud?","Have you ever been caught in the act? Spill.","What's the naughtiest text you've ever sent?","Rate your own kissing skills from 1 to 10 and justify it.","What turns you on that would surprise people here?","What's your biggest turn-off in the bedroom?","Have you ever gone skinny dipping?","What's the longest you've gone without, and how did you cope?","Who here do you think is the best kisser, and why?","Morning, afternoon or midnight. Pick one and explain yourself."],
+    ["What's the wildest thing on your bedroom bucket list?","Describe your most memorable night in exactly five words.","Who here would you want massaging you, and where would they start?","What's the most adventurous thing you've done between the sheets?","Best and worst one-night stand. Go.","What's your go-to move when you want to seduce someone?","Do you own any toys? Describe your favourite without naming it.","What's the riskiest location you've ever hooked up?","What's one thing you'd let someone here do to you tonight?","Rank everyone here by how good you reckon they'd be in bed.","What's the loudest you've ever been, and did the neighbours complain?","What's the kinkiest thing you've ever searched for online?"]
+  ],
+  dare: [
+    ["Give the person on your right your best smouldering look for 10 seconds.","Serenade someone with a love song of their choosing.","Use your best pick-up line on the person opposite you.","Do your sexiest catwalk across the room.","Compliment the person on your left, in a French accent.","Slow dance with someone for 30 seconds.","Blow a kiss to everyone in the room, one at a time.","Whisper something sweet in someone's ear.","Hold hands with the player of your choice until your next turn.","Show the group your most seductive eyebrow raise.","Give someone a 20-second hand massage.","Describe the person on your right like a romance novel hero."],
+    ["Give someone a 30-second shoulder massage.","Kiss the neck of the player of your choice.","Remove one item of clothing. Socks count, but we will judge you.","Give a chair a 20-second lap dance. The chair must be impressed.","Let someone draw a heart anywhere on you with lipstick.","Feed a grape or a snack to someone, mouth to mouth.","Moan dramatically, as if you've just tasted the best dessert of your life.","Sit on someone's lap until your next turn.","Kiss someone anywhere above the shoulders.","Bite your lip and stare at someone until they look away.","Let the group pick someone to give you a hickey-free neck nibble.","Swap shirts with the person on your left."],
+    ["Take off two items of clothing. Your choice.","Give someone a 30-second lap dance. Make them blush.","Kiss the player of your choice for 10 seconds, wherever they say (within reason).","Let someone remove one item of your clothing using only their teeth.","Body shot time. Pick a person and a spot.","Whisper the dirtiest thing you can think of in someone's ear.","Demonstrate your favourite move, fully clothed, on a pillow.","Get blindfolded. Someone kisses you somewhere. Guess who.","Spend the next round in your underwear.","Let someone spank you. Once. They pick how hard.","Trace a line of kisses from someone's wrist to their shoulder.","Do your best striptease to a song the group chooses. Stop whenever you like."]
+  ]
+};
+const NHIE = ["kissed someone in this room","sent a nude","had a crush on a friend's partner","faked it","been walked in on","used a dating app at a wedding","hooked up in a car","been skinny dipping","made out in a cinema","had a friends-with-benefits","googled how to do something in bed","lied about my number","been handcuffed (for fun)","tried role play","sexted at work","done the walk of shame","hooked up with an ex","hooked up outdoors","joined the mile-high club","flirted my way out of a fine","gone commando all day","had a naughty dream about someone here","said the wrong name in bed","bought lingerie just for myself","been in a threesome","watched something naughty with a partner","slid into someone's DMs drunk","broken a bed","been caught by my parents","given a lap dance","received a lap dance","had a quickie at a family event","kissed two people in one night","stalked a crush's ex online","pretended to be asleep to avoid sex","left the lights on on purpose","practised kissing on my hand or a pillow","fallen for a bartender"];
+const WYR = [["Only ever kiss for the rest of your life","Never kiss again, but everything else is fine"],["Have your browser history made public","Have your texts read aloud at your wedding"],["Hook up in a lift","Hook up in a change room"],["Be a terrible kisser who's amazing in bed","Be an amazing kisser who's terrible in bed"],["Moan like a goat","Moan like a pterodactyl"],["Date someone with no sense of humour","Date someone with no sense of rhythm"],["Have your parents walk in on you","Walk in on your parents"],["Lose the ability to flirt","Lose the ability to tell when someone's flirting with you"],["Lights-on only, forever","Lights-off only, forever"],["Only do it at 6 am","Only do it at midnight"],["Give your boss a lap dance","Get a lap dance from your boss"],["Wear lingerie under your work clothes every day","Never wear underwear again"],["One night with your celebrity crush","A lifetime with a lovely normal person"],["Have every hook-up narrated by David Attenborough","Have every hook-up soundtracked by a kazoo"],["Get caught on the kiss cam with your ex","Get caught on the kiss cam with your boss"],["Accidentally sext your mum","Accidentally sext the family group chat"],["Spend a night in fluffy handcuffs","Spend a night blindfolded"],["A one-night stand with a gorgeous stranger","A secret fling with a co-worker"],["Only talk dirty in Shakespearean English","Only talk dirty in pirate"],["Do it on a waterbed","Do it on a trampoline"],["A partner who's way too loud","A partner who's completely silent"],["Kiss with tongue only","Never use tongue again"],["Someone amazing at foreplay","Someone amazing at aftercare"],["Be seduced in a hot tub","Be seduced in a steamy shower"],["Have a partner who only talks in movie quotes in bed","Have a partner who rates every session out of ten"],["Skinny dip at a public beach","Streak across a footy field"]];
+const DIRTY = [
+  ["I'm long and hard, and people love to put me in their mouths and suck.","A lollipop"],
+  ["You stick your poles inside me. You tie me down to get me up. I get wet before you do.","A tent"],
+  ["The more you play with it, the harder it gets.","A Rubik's cube"],
+  ["I go in hard, come out soft, and you can blow me.","Chewing gum"],
+  ["I go in dry and come out wet. The longer I'm in, the stronger I get.","A tea bag"],
+  ["Your dad has one. Your mum uses his. The priest has one but never uses it.","A surname"],
+  ["Sometimes I'm hairy, sometimes I'm bald. I'm full of milk and brown on the outside.","A coconut"],
+  ["You get on top of me and I go up. You get off and I go down.","A seesaw"],
+  ["I'm hot, I'm hard, and you can stuff me with meat.","A taco shell"],
+  ["Get on top, spread your legs, and pump hard to get me going.","A bicycle"],
+  ["Women love to hold it and blow it. It's hot, and it makes a lot of noise.","A hair dryer"],
+  ["What starts with F, ends with K, and involves a lot of pumping?","A fire truck"],
+  ["I'm best when licked, I come in many flavours, and I melt in your mouth.","Ice cream"],
+  ["Made of skin, it goes into a hole, and sometimes it gets stuck.","A finger in a bowling ball"],
+  ["Throbbing, swollen and red, and it really needs rubbing.","A stubbed toe"],
+  ["I'm wet and wild. You climb on top of me and I leave you breathless.","A wave (surfing)"],
+  ["I'm full of holes, but I can still take a lot of liquid.","A sponge"],
+  ["You hold it by the shaft, put it in, and wiggle it around until it's clean.","A toothbrush"],
+  ["It has a long shaft, everyone wants a ride, and the best ones go up and down all night.","A carousel horse"],
+  ["It's hairy on the outside, wet on the inside, and it starts with C and ends with T.","A coconut (again, you filthy animal)"],
+  ["You need two hands to do it properly, and when you finish there's a mess everywhere.","Eating a mango"],
+  ["Tug on it hard enough and it'll go off.","A party popper"]
+];
+const TRIVIA = [
+  ["Which fruit emoji is famously used as a bum?",["Peach","Banana","Apple","Pear"],0],
+  ["The legendary lover Casanova came from which city?",["Paris","Venice","Rome","Seville"],1],
+  ["The Kama Sutra was written in which country?",["China","Egypt","India","Greece"],2],
+  ["The word 'aphrodisiac' comes from which goddess?",["Venus","Hera","Aphrodite","Athena"],2],
+  ["Casanova reportedly ate 50 of these for breakfast to stay frisky.",["Eggs","Oysters","Figs","Strawberries"],1],
+  ["Which hormone is nicknamed the 'cuddle hormone'?",["Oxytocin","Insulin","Cortisol","Adrenaline"],0],
+  ["The bikini was first unveiled in Paris in which year?",["1926","1946","1966","1972"],1],
+  ["'Nobody puts Baby in a corner' comes from which film?",["Grease","Footloose","Dirty Dancing","Flashdance"],2],
+  ["What is gymnophobia the fear of?",["Gyms","Nudity","Sweat","Mirrors"],1],
+  ["Philematology is the scientific study of what?",["Flirting","Kissing","Lust","Lingerie"],1],
+  ["Who released 'Like a Virgin' in 1984?",["Cyndi Lauper","Madonna","Kylie Minogue","Cher"],1],
+  ["Which magazine did Hugh Hefner found?",["Penthouse","Hustler","Playboy","Cosmopolitan"],2],
+  ["'Let's Get It On' was a hit for which soul singer?",["Barry White","Marvin Gaye","Al Green","Prince"],1],
+  ["The French phrase 'la petite mort' poetically describes what?",["A kiss","A nap","An orgasm","A hangover"],2],
+  ["Which bird was sacred to Aphrodite and is a symbol of love?",["Swan","Dove","Peacock","Flamingo"],1],
+  ["The Aztec emperor Montezuma supposedly drank which 'aphrodisiac'?",["Coffee","Chocolate","Tequila","Vanilla milk"],1],
+  ["Which Kylie song asks you to 'spin around'?",["Spinning Around","Can't Get You Out of My Head","Slow","Padam Padam"],0],
+  ["In which city does 'Fifty Shades of Grey' mostly take place?",["New York","Seattle","Chicago","Boston"],1],
+  ["Which colour lingerie is traditionally worn for luck on New Year's Eve in Italy?",["Black","White","Red","Gold"],2],
+  ["What is the 'mile-high club' about?",["Skydiving","Hooking up on a plane","Mountain climbing","Drinking on a plane"],1]
+];
+const LAYERS = ["Left shoe","Right shoe","Socks","Watch","Shirt","Pants","Dignity"];
+const BOTTLE_ACTS = ["kisses {s}","gets a 10-second kiss from {s}","swaps an item of clothing with {s}","gives {s} a 30-second massage","has 7 minutes in the cupboard with {s}","answers any question {s} asks","slow dances with {s}","gets a lap dance from {s}","whispers something naughty to {s}","sits on {s}'s lap for a round","gets a cheeky spank from {s}","feeds {s} something, no hands"];
+const DICE_ACT = ["Kiss","Lick","Nibble","Massage","Blow on","Tickle"];
+const DICE_SPOT = ["Neck","Ear","Lips","Inner thigh","Belly","Your choice"];
+const DICE_TIME = ["10 sec","20 sec","30 sec","1 min","2 min","Until they beg"];
+const SLOT_SYMS = ['peach','eggplant','cherry','lips','cuffs','fire','devil'];
+const SLOT_WEIGHTS = [5,4,6,5,3,4,2];
+const SLOT_WIN = {
+  peach:"Bums out. Everyone gets a cheeky spank from you.",
+  eggplant:"Jackpot, big boy. Pick anyone for a 1-minute massage, from them to you.",
+  cherry:"Sweet. Feed someone a cherry (or lolly), no hands.",
+  lips:"Kiss the person of your choice. Make it count.",
+  cuffs:"You and the next player are cuffed (hands joined) for 3 rounds.",
+  fire:"Too hot to handle. Remove an item of clothing.",
+  devil:"Devil's choice. The group sets you any dare."
+};
+const SLOT_MISS = ["Nothing. Just like your love life.","Spin harder, darling.","Close, but no cigar. Or eggplant.","The machine is not in the mood.","Blue balls. Try again.","Denied. The house always wins."];
+const DATES = [
+  {name:'Scarlett', look:{bg:'#ff2e88',skin:'#f6c9a8',hair:'#b3122e',style:'long',top:'#2a0640',extra:'<path d="M42 66 C46 64 54 64 58 66" stroke="#e0103a" stroke-width="2" fill="none"/>'}},
+  {name:'Dante', look:{bg:'#7b3cff',skin:'#c68a5e',hair:'#1b0f0a',style:'short',top:'#ff2e88',extra:'<path d="M34 72 C40 82 60 82 66 72" stroke="#1b0f0a" stroke-opacity=".25" stroke-width="6" fill="none"/>'}},
+  {name:'Sasha', look:{bg:'#ffcc4d',skin:'#e9b48a',hair:'#8e44ff',style:'undercut',top:'#14001f',extra:'<circle cx="23" cy="58" r="3" fill="#ffcc4d"/>'}}
+];
+const FLIRT = [
+  {say:"So... do you come here often?",opts:[["Only when I know you'll be here.",2],["Define 'often'. And 'here'. And 'come'.",1],["Yeah, my mum drops me off on Thursdays.",-2]]},
+  {say:"Tell me something interesting about you.",opts:[["I can tie a cherry stem in a knot with my tongue. Want proof?",2],["I'm a great listener. You first.",1],["I have 47 tabs open about crypto. Want to see them?",-2]]},
+  {say:"You've got something... right there.",opts:[["Wipe it off for me?",2],["Probably my dignity. I lose it around you.",1],["*licks own face like a Labrador*",-3]]},
+  {say:"Want to share dessert?",opts:[["Only if I get to feed you.",2],["One spoon. No rules.",1],["No. I don't share. Ever. With anyone.",-2]]},
+  {say:"It's getting late...",opts:[["Then let's not waste any more of it.",2],["My place has better lighting. And a cat.",1],["Cool, my bus leaves in 4 minutes. Bye.",-3]]},
+  {say:"Well? Are you going to kiss me or not?",opts:[["*leans in slow, confident, absolutely nails it*",3],["*goes for it, bumps noses, laughs it off*",1],["*offers a firm, businesslike handshake*",-3]]}
+];
+
+// ---------- kink content ----------
+const KINK = [
+  [["Hotwife","Dress your partner for a night out in something chosen to make other people stare. They report every glance they get."],
+   ["Cuckold","Tell your partner exactly who you'd sleep with if they gave you a hall pass. Names, reasons, and how you'd make the first move."],
+   ["Power","Your partner picks a pet name for you. You answer to it, and only it, for the rest of the night."],
+   ["Spanking","Bend over the arm of the couch. Your partner gives you five spanks and you count every one out loud."],
+   ["Hotwife","Show your partner the hottest person in your contacts. Tell them what you'd do if that person messaged you tonight."],
+   ["Denial","Kiss your partner like you mean it for 60 seconds, then stop dead. No touching until your next turn."],
+   ["Bondage","Your partner ties your wrists with a scarf or tie. You stay bound until your next turn."],
+   ["Exhibition","Take off your underwear and hand it to your partner. Go without for the rest of the game."],
+   ["Cuckold","Your partner flirts with someone in the room for two minutes. You sit close, watch, and keep your hands to yourself."],
+   ["Praise","Tell your partner, in detail, the three things about their body that drive you craziest."],
+   ["Roleplay","You're a stranger who just got caught checking out your partner. Talk your way out of it, or into their bed."],
+   ["Sensation","Blindfold your partner and run an ice cube slowly from their neck down their chest. Stop where they say."],
+   ["Power","Kneel at your partner's feet until your next turn. You may only speak when they ask you a question."],
+   ["Jealousy","Describe the last time someone other than your partner turned you on. Your partner gets three follow-up questions."]],
+  [["Hotwife","Sit on the lap of someone in the room for a full round. Your partner watches from across the room."],
+   ["Cuckold","Pick someone in the room to kiss your partner for 15 seconds while you watch. You aren't allowed to look away."],
+   ["Spanking","Over your partner's knee. Ten spanks, getting harder. Say 'thank you' after each one or start again."],
+   ["Bondage","Hands tied behind your back. Your partner kisses and bites you wherever they like for two minutes. You can't touch back."],
+   ["Denial","Your partner teases you with hands and mouth for three minutes. You don't get to finish tonight unless they decide you've earned it."],
+   ["Hotwife","Give someone in the room a 30-second lap dance while your partner sits right beside them and watches."],
+   ["Cuckold","Your partner gets a massage from someone of their choice. You narrate what you're watching, out loud."],
+   ["Exhibition","Strip to your underwear and stay that way, sitting next to someone who isn't your partner."],
+   ["Power","Your partner gives you three commands. Obey all three or take a forfeit of their choosing."],
+   ["Sensation","Your partner chooses wax (a massage candle), ice or a feather. Two minutes, and you're blindfolded."],
+   ["Collar","Wear a collar (belt, scarf or the real thing) and let your partner lead you around the room by it."],
+   ["Jealousy","Someone else in the room chooses which item of clothing your partner removes next."],
+   ["Roleplay","Your partner is your boss and has caught you after hours. Negotiate what keeps you employed."],
+   ["Praise","Get on your knees and beg your partner for a kiss. They decide if the begging was good enough."]],
+  [["Hotwife","Make out with someone in the room while your partner watches. Your partner decides when it stops."],
+   ["Cuckold","Your partner chooses someone to touch you anywhere above the waist for one minute. They watch. They don't touch."],
+   ["Hotwife","Plan your hall pass together, out loud: who, where, how far it goes, and what you'll tell your partner afterwards."],
+   ["Cuckold","Watch your partner give someone else a lap dance in nothing but underwear. Afterwards, tell the room how it made you feel."],
+   ["Bondage","Tied and blindfolded. Two people take turns kissing your neck. Guess which one is your partner."],
+   ["Denial","Your partner edges you over your clothes until you beg, then stops. No finishing until the game is over."],
+   ["Spanking","Your partner picks the implement: hand, hairbrush or belt. Fifteen strokes. Use your safe word if you need it."],
+   ["Exhibition","Strip completely for your partner while everyone else closes their eyes. Stay that way, under a towel, until your next turn."],
+   ["Power","Your partner sets the rules for the rest of the night: what you wear, what you're allowed to do, and how you have to ask for it."],
+   ["Hotwife","Your partner waits in the next room. Kiss someone and come back with the evidence on your lips."],
+   ["Cuckold","Your partner describes a fantasy about someone else in vivid detail. You're not allowed to react until they finish."],
+   ["Sensation","Hot and cold. Your partner is tied up, and you alternate ice and warm breath down their body for three minutes."],
+   ["Roleplay","Interrogation. Your partner is tied to a chair. Get one secret out of them using only your mouth and hands."],
+   ["Group","Everyone who's opted in loses an item of clothing. The couple who drew this card choose who goes first."]]
+];
+const KINK_CATS = ['All','Hotwife','Cuckold','Power','Bondage','Spanking','Denial','Exhibition','Sensation','Roleplay'];
+const YNM = ["Spanking (giving)","Spanking (receiving)","Blindfolds","Being tied up","Tying them up","Hotwife / hall pass for you","Hall pass for your partner","Watching your partner with someone else","Being watched with someone else","Threesome","Swinging or partner swap","Group play","Sex somewhere semi-public","Dirty talk","Role play","Uniforms and costumes","Lingerie and dress-up","You in charge (Dom)","Them in charge (sub you)","Collar and leash","Orgasm denial and edging","Wax play","Ice play","Hair pulling","Biting and marks","Praise","Degradation (verbal)","Toys together","Filming yourselves (private)","Sending explicit photos","Watching each other touch yourselves","Food play","Voyeurism (watching others)","Exhibitionism (being watched)"];
+const POWER = [
+  ["Kneel with your hands behind your back. Eyes down.",60],
+  ["Undress your Dom down to their underwear. Slowly.",90],
+  ["Stand perfectly still while your Dom inspects you. No touching back.",60],
+  ["Kiss your way up from your Dom's ankle to their knee.",60],
+  ["Bend over. Five spanks. Count them out loud.",0],
+  ["Hands on your head. Your Dom touches you anywhere over your clothes. Don't move.",90],
+  ["Lie down. Your Dom positions you however they like, and you hold it.",60],
+  ["Beg for something you want. Your Dom decides yes or no.",0],
+  ["Take off one item of your own clothing while holding eye contact.",45],
+  ["Your Dom kisses you. You are not allowed to kiss back.",30],
+  ["Wrists bound with a tie or scarf for the next three commands.",0],
+  ["Blindfolded for the next three commands.",0],
+  ["Your Dom teases your neck and ears with their lips. Hands stay at your sides.",90],
+  ["Thank your Dom for the last command with a kiss wherever they point.",0],
+  ["Crawl to your Dom across the room.",0],
+  ["Your Dom offers a choice: five more spanks, or lose another item of clothing.",0],
+  ["Lap dance for your Dom. They can touch. You can't.",60],
+  ["Tell your Dom three things you want them to do to you later tonight.",0],
+  ["Hold eye contact and say 'I'm yours' without laughing. Crack and you start again.",0],
+  ["Your Dom leaves a love bite somewhere only they'll see.",0],
+  ["Massage your Dom's shoulders. Stop only when told.",120],
+  ["Your Dom edges you over your clothes, then stops. No complaints.",60],
+  ["Stand in the corner and wait.",45],
+  ["Your Dom chooses your next item of clothing to go. You remove it on your knees.",0]
+];
+
+// ---------- games registry ----------
+const GAMES = [
+  {id:'tod', name:'Truth or Dare', tag:'Three heat levels. No chickening out.', icon:'devil', run:gTod},
+  {id:'dice', name:'Dirty Dice', tag:'Roll to see what, where and how long.', icon:'dice', run:gDice},
+  {id:'bottle', name:'Spin the Bottle', tag:'Fate picks your victim.', icon:'bottle', run:gBottle},
+  {id:'nhie', name:'Never Have I Ever', tag:'Drink if you have, you dirty thing.', icon:'martini', run:gNhie},
+  {id:'strip', name:'Strip Trivia', tag:'Wrong answer? Lose a layer.', icon:'undies', run:gStrip},
+  {id:'slots', name:'Cheeky Slots', tag:'Three of a kind pays out in dares.', icon:'cherry', run:gSlots},
+  {id:'kiss', name:'Kiss Catcher', tag:'Catch the kisses, dodge cold showers.', icon:'lips', run:gKiss},
+  {id:'wyr', name:'Would You Rather', tag:'Impossible, filthy choices.', icon:'wyr', run:gWyr},
+  {id:'dirty', name:'Dirty Mind', tag:'Sounds filthy. Answer is innocent.', icon:'dirty', run:gDirty},
+  {id:'flirt', name:'Flirt or Fail', tag:'Smooth-talk your date home.', icon:'heart', run:gFlirt},
+  {id:'kink', name:'Kink Challenges', tag:'Hotwife, cuckold, bondage and more.', icon:'mask', run:gKink, kink:true},
+  {id:'ynm', name:'Yes, No, Maybe', tag:'Find the kinks you both secretly want.', icon:'ynm', run:gYnm, kink:true},
+  {id:'power', name:'Power Play', tag:'One Dom, one sub, a deck of orders.', icon:'collar', run:gPower, kink:true}
+];
+
+function shell(title, inner) {
+  app.innerHTML = `<div class="top"><button class="back" id="back" aria-label="Back">&#8249;</button><h2>${title}</h2></div>` + inner;
+  $('#back').onclick = () => { if (history.length > 1) history.back(); else location.hash = ''; };
+}
+function route() {
+  if (cleanup) { try { cleanup(); } catch (e) {} cleanup = null; }
+  window.scrollTo(0, 0);
+  if (!store.get('adult', false)) return gate();
+  const g = GAMES.find(g => g.id === location.hash.slice(1));
+  if (g) g.run(); else home();
+}
+window.addEventListener('hashchange', route);
+
+function gate() {
+  app.innerHTML = `<div class="gate">${ART.lips}<div class="logo">Naughty Night</div><p>Thirteen raunchy party games for consenting adults.<br>Strictly 18+. Anyone can pass on anything, any time.</p><button class="btn" id="yes">I'm 18+, let's play</button><button class="btn ghost" id="no">Get me out of here</button></div>`;
+  $('#yes').onclick = () => { store.set('adult', true); route(); };
+  $('#no').onclick = () => { app.innerHTML = `<div class="gate">${ART.shower}<p>Fair enough. Come back when you're feeling braver.</p></div>`; };
+}
+
+function home() {
+  const tile = g => `<div class="tile${g.kink ? ' kinky' : ''}" data-id="${g.id}">${ART[g.icon]}<b>${g.name}</b><span>${g.tag}</span></div>`;
+  app.innerHTML = `<div id="updBanner"></div><div class="logo">Naughty Night</div><div class="sub">Thirteen games. Zero shame. Lights optional.</div>
+  <div class="panel"><div class="ptitle">Who's playing</div><div class="chips" id="chips"></div>
+  <form class="add" id="addp"><input id="pname" maxlength="16" placeholder="Add a player" autocomplete="off"><button class="btn sm">Add</button></form></div>
+  <div class="grid">${GAMES.filter(g => !g.kink).map(tile).join('')}</div>
+  <h3 class="section">After dark: kink</h3>
+  <div class="grid">${GAMES.filter(g => g.kink).map(tile).join('')}</div>
+  <div class="note">Safe word is always on. Anyone can pass, swap or stop.<br>Enthusiastic yes or it's a no. Consent is the sexiest move.</div>
+  ${hasNN() ? `<div class="panel" id="updPanel" style="margin-top:18px"><div class="ptitle">Updates &middot; you're on v${esc(NN.version())}</div>
+  <div class="seg" id="updMode"><button data-v="auto">Automatic</button><button data-v="notify">Notify me</button><button data-v="manual">Manual</button></div>
+  <div class="seg" id="updCh"><button data-v="stable">Stable</button><button data-v="beta">Beta</button></div>
+  <div class="who" id="updHelp" style="font-size:13px;line-height:1.5"></div>
+  <button class="btn ghost" id="updNow">Check for updates now</button>
+  <div class="who" id="updMsg" style="margin:10px 0 0"></div></div>` : ''}`;
+  if (hasNN()) {
+    $('#updMode').onclick = e => { const v = e.target.dataset.v; if (v) { upd.mode = v; store.set('updMode', v); drawUpd(); } };
+    $('#updCh').onclick = e => { const v = e.target.dataset.v; if (v) { upd.channel = v; store.set('updChannel', v); upd.info = null; drawUpd(); updCheck(false); } };
+    $('#updNow').onclick = () => updCheck(false);
+  }
+  drawUpd();
+  const drawChips = () => {
+    $('#chips').innerHTML = players.map((p, i) => `<span class="chip">${esc(p)}<i data-del="${i}">&times;</i></span>`).join('') || '<span style="color:var(--muted);font-size:14px">Add at least two players</span>';
+  };
+  drawChips();
+  $('#chips').onclick = e => { const i = e.target.dataset.del; if (i != null) { players.splice(+i, 1); store.set('players', players); drawChips(); } };
+  $('#addp').onsubmit = e => { e.preventDefault(); const v = $('#pname').value.trim(); if (v && players.length < 12) { players.push(v); store.set('players', players); drawChips(); } $('#pname').value = ''; };
+  app.querySelectorAll('.tile').forEach(t => t.onclick = () => { location.hash = t.dataset.id; });
+}
+const plist = () => players.length ? players : ['You'];
+
+// 1. Truth or Dare
+function gTod() {
+  let heat = store.get('heat', 1), turn = 0;
+  const decks = [0,1,2].map(i => ({t: deck(TOD.truth[i]), d: deck(TOD.dare[i])}));
+  shell('Truth or Dare', `<div class="seg" id="heat">${['Flirty','Spicy','Filthy'].map((h, i) => `<button data-h="${i}">${h}</button>`).join('')}</div>
+  <div class="who" id="who"></div>
+  <div class="card" id="card">${ART.devil}<p style="margin:10px 0 0">Truth or dare, gorgeous?</p></div>
+  <div class="row"><button class="btn" id="t">Truth</button><button class="btn hot" id="d">Dare</button></div>
+  <button class="btn ghost" id="next">Next player &rarr;</button>
+  <div class="note">Don't fancy it? Pass, and take a sip instead.</div>`);
+  const drawHeat = () => $('#heat').querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.h === heat));
+  const drawWho = () => $('#who').innerHTML = `Your turn, <b>${esc(plist()[turn % plist().length])}</b>`;
+  drawHeat(); drawWho();
+  $('#heat').onclick = e => { if (e.target.dataset.h) { heat = +e.target.dataset.h; store.set('heat', heat); drawHeat(); } };
+  const show = kind => {
+    const txt = kind === 't' ? decks[heat].t() : decks[heat].d();
+    const c = $('#card'); c.classList.remove('pop'); void c.offsetWidth; c.classList.add('pop');
+    c.innerHTML = `<span class="tag">${kind === 't' ? 'Truth' : 'Dare'} &middot; ${['Flirty','Spicy','Filthy'][heat]}</span><p style="margin:0">${esc(txt)}</p>`;
+    beep(kind === 't' ? 660 : 440, .2, 'triangle');
+  };
+  $('#t').onclick = () => show('t'); $('#d').onclick = () => show('d');
+  $('#next').onclick = () => { turn++; drawWho(); const c = $('#card'); c.innerHTML = `${ART.devil}<p style="margin:10px 0 0">Truth or dare, gorgeous?</p>`; c.classList.remove('pop'); void c.offsetWidth; c.classList.add('pop'); };
+}
+
+// 2. Dirty Dice
+function gDice() {
+  let turn = 0;
+  shell('Dirty Dice', `<div class="who" id="who"></div>
+  <div class="dice"><div class="die" id="d1">?</div><div class="die p" id="d2">?</div><div class="die g" id="d3">?</div></div>
+  <div class="card" id="res" style="min-height:120px;font-size:19px">Roll the dice and do what they say.</div>
+  <div class="row"><button class="btn" id="roll">Roll &#127922;</button></div>
+  <div class="note">Pink die: what. White die: where. Gold die: how long. Partner can veto.</div>`);
+  const ps = () => plist();
+  const drawWho = () => { const p = ps(); const me = p[turn % p.length]; const them = p.length > 1 ? p[(turn + 1) % p.length] : 'yourself'; $('#who').innerHTML = `<b>${esc(me)}</b> &rarr; <b>${esc(them)}</b>`; };
+  drawWho();
+  let busy = false;
+  $('#roll').onclick = () => {
+    if (busy) return; busy = true;
+    const ds = ['#d1','#d2','#d3'].map(s => $(s));
+    ds.forEach(d => d.classList.add('roll'));
+    const iv = setInterval(() => { $('#d2').textContent = pick(DICE_ACT); $('#d1').textContent = pick(DICE_SPOT); $('#d3').textContent = pick(DICE_TIME); beep(300 + rnd(400), .04, 'square', .03); }, 80);
+    setTimeout(() => {
+      clearInterval(iv); ds.forEach(d => d.classList.remove('roll'));
+      const a = pick(DICE_ACT), s = pick(DICE_SPOT), t = pick(DICE_TIME);
+      $('#d2').textContent = a; $('#d1').textContent = s; $('#d3').textContent = t;
+      const p = ps(); const them = p.length > 1 ? p[(turn + 1) % p.length] : 'yourself';
+      const r = $('#res'); r.classList.remove('pop'); void r.offsetWidth; r.classList.add('pop');
+      r.innerHTML = `<p style="margin:0"><b>${a}</b> ${esc(them)}'s <b>${s.toLowerCase()}</b> for <b>${t.toLowerCase()}</b>.</p>`;
+      beep(880, .3, 'triangle'); buzz(60);
+      turn++; setTimeout(drawWho, 50); busy = false;
+    }, 1300);
+    cleanup = () => clearInterval(iv);
+  };
+}
+
+// 3. Spin the Bottle
+function gBottle() {
+  shell('Spin the Bottle', `<div class="table" id="tbl"><div class="bottle" id="btl">${ART.bottle}</div></div>
+  <div class="card" id="res" style="min-height:100px;font-size:19px">Tap spin. Whoever the neck points at is in trouble.</div>
+  <div class="row"><button class="btn" id="spin">Spin it</button></div>`);
+  const p = plist().length >= 2 ? plist() : ['You', 'Them'];
+  const tbl = $('#tbl'); const R = tbl.offsetWidth / 2 - 30;
+  p.forEach((n, i) => {
+    const a = i * 360 / p.length;
+    const s = document.createElement('div'); s.className = 'seat'; s.id = 'seat' + i;
+    const rad = (a - 90) * Math.PI / 180;
+    s.style.transform = `translate(${Math.cos(rad) * R}px,${Math.sin(rad) * R}px)`;
+    s.innerHTML = `<span>${esc(n)}</span>`; tbl.appendChild(s);
+  });
+  let rot = 0, spinner = 0, busy = false;
+  $('#spin').onclick = () => {
+    if (busy) return; busy = true;
+    document.querySelectorAll('.seat').forEach(s => s.classList.remove('win'));
+    let target; do { target = rnd(p.length); } while (p.length > 1 && target === spinner % p.length);
+    const want = target * 360 / p.length;
+    const cur = ((rot % 360) + 360) % 360;
+    rot += 360 * 5 + ((want - cur + 360) % 360) + (Math.random() * 10 - 5);
+    $('#btl').style.transform = `rotate(${rot}deg)`;
+    $('#res').innerHTML = 'Round and round she goes...';
+    let tick = 0; const iv = setInterval(() => { beep(500 + (tick++ % 2) * 100, .03, 'square', .02); }, 120);
+    setTimeout(() => {
+      clearInterval(iv); busy = false;
+      $('#seat' + target).classList.add('win'); beep(990, .4, 'triangle'); buzz(100);
+      const sp = p[spinner % p.length];
+      const r = $('#res'); r.classList.remove('pop'); void r.offsetWidth; r.classList.add('pop');
+      r.innerHTML = `<p style="margin:0"><b>${esc(p[target])}</b> ${pick(BOTTLE_ACTS).replace('{s}', '<b>' + esc(sp) + '</b>')}.</p><p style="margin:8px 0 0;font-size:14px;color:var(--muted)">${esc(p[target])} spins next.</p>`;
+      spinner = target;
+    }, 3700);
+    cleanup = () => clearInterval(iv);
+  };
+}
+
+// 4. Never Have I Ever
+function gNhie() {
+  const next = deck(NHIE); let n = 0;
+  shell('Never Have I Ever', `<div class="card" id="card">${ART.martini}<p style="margin:10px 0 0">If you've done it, you drink. Simple.</p></div>
+  <div class="row"><button class="btn" id="go">Next confession</button></div>
+  <div class="who" id="cnt"></div>`);
+  $('#go').onclick = () => {
+    n++; const c = $('#card'); c.classList.remove('pop'); void c.offsetWidth; c.classList.add('pop');
+    c.innerHTML = `<span class="tag">Card ${n}</span><p style="margin:0;font-size:15px;color:var(--muted)">Never have I ever...</p><p style="margin:8px 0 0;font-size:24px;font-weight:700">${esc(next())}</p>`;
+    $('#cnt').textContent = 'Guilty? Drink, and tell the story.'; beep(520, .15, 'triangle');
+  };
+}
+
+// 5. Strip Trivia
+function gStrip() {
+  let qs = shuffle(TRIVIA).slice(0, 12), qi = 0, lost = 0, streak = 0;
+  shell('Strip Trivia', `<div class="layers" id="layers"></div><div class="meter"><div id="prog" style="width:0"></div></div>
+  <div id="qbox"></div>`);
+  const drawLayers = () => $('#layers').innerHTML = LAYERS.map((l, i) => `<span class="layer ${i < lost ? 'gone' : ''}">${l}</span>`).join('');
+  const end = win => {
+    $('#qbox').innerHTML = `<div class="card pop">${win ? ART.undies : ART.fire}<p style="margin:12px 0 4px;font-weight:700">${win ? `Survived with ${LAYERS.length - lost} layer${LAYERS.length - lost === 1 ? '' : 's'} left.` : "You're in your birthday suit."}</p><p style="margin:0;font-size:16px;color:var(--muted)">${win ? 'Big brain energy. Pick someone to lose a layer in your honour.' : 'Forfeit: strike a pose while everyone counts to ten.'}</p></div><div class="row"><button class="btn" id="again">Play again</button></div>`;
+    $('#again').onclick = gStrip;
+  };
+  const ask = () => {
+    $('#prog').style.width = (qi / qs.length * 100) + '%';
+    if (lost >= LAYERS.length) return end(false);
+    if (qi >= qs.length) return end(true);
+    const [q, opts, ans] = qs[qi];
+    $('#qbox').innerHTML = `<div class="q pop">${esc(q)}</div><div class="opts">${opts.map((o, i) => `<button class="opt" data-i="${i}">${esc(o)}</button>`).join('')}</div><div class="who" id="fb" style="margin-top:12px">${streak >= 2 ? 'One more right gets a layer back.' : '&nbsp;'}</div>`;
+    $('#qbox').querySelector('.opts').onclick = e => {
+      const i = e.target.dataset.i; if (i == null) return;
+      $('#qbox').querySelectorAll('.opt').forEach(b => { b.disabled = true; if (+b.dataset.i === ans) b.classList.add('right'); });
+      if (+i === ans) {
+        streak++; beep(880, .2, 'triangle');
+        if (streak >= 3 && lost > 0) { lost--; streak = 0; flash('Layer back on'); } else flash('Correct');
+      } else {
+        e.target.classList.add('wrong'); streak = 0; lost++; buzz(150); beep(160, .4, 'sawtooth');
+        flash('Off with the ' + LAYERS[lost - 1].toLowerCase());
+        $('#qbox').classList.add('shake'); setTimeout(() => $('#qbox') && $('#qbox').classList.remove('shake'), 500);
+      }
+      drawLayers(); qi++; setTimeout(ask, 1300);
+    };
+  };
+  drawLayers(); ask();
+}
+
+// 6. Cheeky Slots
+function gSlots() {
+  let credits = store.get('credits', 15);
+  const pool = []; SLOT_SYMS.forEach((s, i) => { for (let k = 0; k < SLOT_WEIGHTS[i]; k++) pool.push(s); });
+  shell('Cheeky Slots', `<div class="slots"><div class="reel" id="r0">${ART.peach}</div><div class="reel" id="r1">${ART.eggplant}</div><div class="reel" id="r2">${ART.cherry}</div></div>
+  <div class="credits" id="cr"></div>
+  <div class="card" id="res" style="min-height:110px;font-size:19px">Feeling lucky? One credit a spin.</div>
+  <div class="row"><button class="btn gold" id="spin">Pull the lever</button></div>
+  <div class="note">Three of a kind wins a dare. Two of a kind wins 2 credits. Broke? Take a sip and get 5.</div>`);
+  const drawCr = () => { $('#cr').textContent = 'Credits: ' + credits; store.set('credits', credits); $('#spin').textContent = credits > 0 ? 'Pull the lever' : 'Broke. Sip for 5 credits'; };
+  drawCr();
+  let busy = false, ivs = [];
+  cleanup = () => ivs.forEach(clearInterval);
+  $('#spin').onclick = () => {
+    if (busy) return;
+    if (credits <= 0) { credits = 5; drawCr(); flash('+5 credits'); return; }
+    busy = true; credits--; drawCr();
+    const res = [pick(pool), pick(pool), pick(pool)];
+    if (Math.random() < .12) res[1] = res[2] = res[0];
+    [0,1,2].forEach(i => {
+      const r = $('#r' + i); r.classList.add('spin');
+      ivs[i] = setInterval(() => { r.innerHTML = ART[pick(SLOT_SYMS)]; }, 70);
+      setTimeout(() => { clearInterval(ivs[i]); r.classList.remove('spin'); r.innerHTML = ART[res[i]]; beep(400 + i * 150, .1, 'square', .05); if (i === 2) done(); }, 700 + i * 450);
+    });
+    const done = () => {
+      busy = false;
+      const r = $('#res'); r.classList.remove('pop'); void r.offsetWidth; r.classList.add('pop');
+      if (res[0] === res[1] && res[1] === res[2]) {
+        credits += 5; r.innerHTML = `<span class="tag">Jackpot</span><p style="margin:0">${SLOT_WIN[res[0]]}</p>`;
+        flash('JACKPOT'); buzz([100, 60, 100]); [523, 659, 784, 1047].forEach((f, k) => setTimeout(() => beep(f, .2, 'triangle'), k * 120));
+      } else if (res[0] === res[1] || res[1] === res[2] || res[0] === res[2]) {
+        credits += 2; r.innerHTML = `<p style="margin:0">Two of a kind. +2 credits, and you owe someone a wink.</p>`; beep(700, .2, 'triangle');
+      } else { r.innerHTML = `<p style="margin:0">${pick(SLOT_MISS)}</p>`; }
+      drawCr();
+    };
+  };
+}
+
+// 7. Kiss Catcher
+function gKiss() {
+  const best = store.get('kissBest', 0);
+  shell('Kiss Catcher', `<div class="hud"><span id="sc">Score 0</span><span id="lv">&#10084;&#10084;&#10084;</span><span>Best ${best}</span></div>
+  <div class="stage"><canvas id="cv"></canvas><div class="overlay" id="ov">${ART.lips}<b style="font-size:20px">Catch the kisses</b><span style="color:var(--muted);font-size:14px;line-height:1.5">Drag to move. Lips, hearts, cherries and bubbly score.<br>Cold showers kill the mood.</span><button class="btn" id="go" style="width:auto;padding:14px 30px">Pucker up</button></div></div>`);
+  const cv = $('#cv'), ctx = cv.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const W = cv.clientWidth, H = Math.min(window.innerHeight * .68, 560);
+  cv.style.height = H + 'px'; cv.width = W * dpr; cv.height = H * dpr; ctx.scale(dpr, dpr);
+  const img = {}; ['lips','heart','cherry','bubbly','shower','peach'].forEach(k => { const i = new Image(); i.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(ART[k]); img[k] = i; });
+  const mouth = new Image(); mouth.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(ART.lips);
+  const TYPES = [{k:'heart',p:10,w:5},{k:'lips',p:15,w:4},{k:'cherry',p:5,w:4},{k:'bubbly',p:25,w:1},{k:'peach',p:20,w:2},{k:'shower',p:0,w:3,bad:true}];
+  const tpool = []; TYPES.forEach(t => { for (let i = 0; i < t.w; i++) tpool.push(t); });
+  let items, px, score, lives, speed, spawn, raf, last, running = false, pops;
+  const reset = () => { items = []; pops = []; px = W / 2; score = 0; lives = 3; speed = 1; spawn = 0; };
+  const move = e => { const r = cv.getBoundingClientRect(); const t = e.touches ? e.touches[0] : e; px = Math.max(40, Math.min(W - 40, t.clientX - r.left)); };
+  cv.addEventListener('touchmove', e => { e.preventDefault(); move(e); }, {passive:false});
+  cv.addEventListener('touchstart', move, {passive:true});
+  cv.addEventListener('mousemove', move);
+  const hud = () => { $('#sc').textContent = 'Score ' + score; $('#lv').innerHTML = '&#10084;'.repeat(Math.max(0, lives)) || '&#128148;'; };
+  const loop = t => {
+    const dt = Math.min(40, t - (last || t)) / 16.67; last = t;
+    speed += .0009 * dt; spawn -= dt;
+    if (spawn <= 0) { const ty = pick(tpool); items.push({x: 24 + Math.random() * (W - 48), y: -30, s: 34 + rnd(12), v: (2 + Math.random() * 1.5) * speed, t: ty, r: Math.random() * 6}); spawn = Math.max(14, 42 - speed * 9); }
+    ctx.clearRect(0, 0, W, H);
+    for (let i = 0; i < 30; i++) { ctx.fillStyle = 'rgba(255,255,255,' + (.05 + (i % 3) * .04) + ')'; ctx.fillRect((i * 97) % W, (i * 53 + t * .02 * (1 + i % 3)) % H, 2, 2); }
+    const my = H - 50;
+    for (let i = items.length - 1; i >= 0; i--) {
+      const it = items[i]; it.y += it.v * dt; it.r += .05 * dt;
+      ctx.save(); ctx.translate(it.x, it.y); ctx.rotate(Math.sin(it.r) * .3); ctx.drawImage(img[it.t.k], -it.s / 2, -it.s / 2, it.s, it.s); ctx.restore();
+      if (it.y > my - 20 && it.y < my + 20 && Math.abs(it.x - px) < 48) {
+        items.splice(i, 1);
+        if (it.t.bad) { lives--; buzz(200); beep(140, .4, 'sawtooth'); pops.push({x: it.x, y: my - 30, txt: 'Brrr!', a: 1, c: '#9fc6e8'}); }
+        else { score += it.t.p; beep(600 + it.t.p * 20, .08, 'triangle'); pops.push({x: it.x, y: my - 30, txt: '+' + it.t.p, a: 1, c: '#ffcc4d'}); }
+        hud();
+      } else if (it.y > H + 30) { items.splice(i, 1); }
+    }
+    pops.forEach(p => { p.y -= 1.2 * dt; p.a -= .025 * dt; ctx.globalAlpha = Math.max(0, p.a); ctx.fillStyle = p.c; ctx.font = 'bold 20px system-ui'; ctx.textAlign = 'center'; ctx.fillText(p.txt, p.x, p.y); });
+    ctx.globalAlpha = 1; pops = pops.filter(p => p.a > 0);
+    ctx.save(); ctx.shadowColor = '#ff2e88'; ctx.shadowBlur = 20; ctx.drawImage(mouth, px - 48, my - 32, 96, 66); ctx.restore();
+    if (lives <= 0) return over();
+    raf = requestAnimationFrame(loop);
+  };
+  const over = () => {
+    running = false;
+    const b = Math.max(best, score, store.get('kissBest', 0)); store.set('kissBest', b);
+    const ov = $('#ov'); ov.style.display = 'flex';
+    ov.innerHTML = `${ART.shower}<b style="font-size:20px">Mood killed</b><div class="score">${score}</div><span style="color:var(--muted)">${score >= b && score > 0 ? 'New personal best, you kissing machine.' : 'Best: ' + b}</span><span style="font-size:14px;color:var(--muted)">Pass the phone. Lowest score kisses the highest.</span><button class="btn" id="go" style="width:auto;padding:14px 30px">Again</button>`;
+    $('#go').onclick = start;
+  };
+  const start = () => { $('#ov').style.display = 'none'; reset(); hud(); last = 0; running = true; raf = requestAnimationFrame(loop); };
+  $('#go').onclick = start;
+  cleanup = () => cancelAnimationFrame(raf);
+}
+
+// 8. Would You Rather
+function gWyr() {
+  const next = deck(WYR);
+  shell('Would You Rather', `<div id="box"></div><div class="row"><button class="btn ghost" id="skip">Next dilemma &rarr;</button></div>`);
+  const show = () => {
+    const [a, b] = next(); const pa = 20 + rnd(61);
+    $('#box').innerHTML = `<div class="wyr pop" id="w"><button class="a" data-s="a">${esc(a)}<span class="pct">${pa}%</span></button><div class="or">or</div><button class="b" data-s="b">${esc(b)}<span class="pct">${100 - pa}%</span></button></div><div class="who" style="margin-top:10px">Everyone picks. The minority drinks.</div>`;
+    $('#w').onclick = e => { const btn = e.target.closest('button'); if (!btn || $('#w').classList.contains('done')) return; btn.classList.add('pick'); $('#w').classList.add('done'); beep(700, .15, 'triangle'); };
+  };
+  $('#skip').onclick = show; show();
+}
+
+// 9. Dirty Mind
+function gDirty() {
+  const next = deck(DIRTY); let clean = 0, filthy = 0, cur;
+  shell('Dirty Mind', `<div class="who" id="tally"></div><div class="card" id="card"></div>
+  <div id="ctl"></div><div class="note">Read it out in your sexiest voice. First to guess the innocent answer wins. Anyone who shouts something filthy takes a sip.</div>`);
+  const tally = () => $('#tally').innerHTML = `Clean minds <b>${clean}</b> &nbsp;&middot;&nbsp; Filthy minds <b>${filthy}</b>`;
+  const show = () => {
+    cur = next(); const c = $('#card'); c.classList.remove('pop'); void c.offsetWidth; c.classList.add('pop');
+    c.innerHTML = `<span class="tag">What am I?</span><p style="margin:0">${esc(cur[0])}</p>`;
+    $('#ctl').innerHTML = `<div class="row"><button class="btn" id="rev">Reveal the answer</button></div>`;
+    $('#rev').onclick = () => {
+      c.insertAdjacentHTML('beforeend', `<p class="pop" style="margin:16px 0 0;color:var(--gold);font-weight:800;font-size:24px">${esc(cur[1])}</p>`);
+      beep(880, .2, 'triangle');
+      $('#ctl').innerHTML = `<div class="row"><button class="btn ghost" id="c">Got it clean</button><button class="btn hot" id="f">Pervert alert</button></div>`;
+      $('#c').onclick = () => { clean++; tally(); show(); };
+      $('#f').onclick = () => { filthy++; tally(); flash('Filthy'); show(); };
+    };
+  };
+  tally(); show();
+}
+
+// 10. Flirt or Fail
+function gFlirt() {
+  shell('Flirt or Fail', `<p class="who" style="font-size:16px">Pick your date for the night</p><div class="pickdate">${DATES.map((d, i) => `<button data-i="${i}">${face('happy', d.look)}<b style="display:block;margin-top:4px">${d.name}</b></button>`).join('')}</div>
+  <div class="note">Six moments. Say the right thing and you're going home with them. Say the wrong thing and you're going home with a kebab.</div>`);
+  app.querySelector('.pickdate').onclick = e => { const b = e.target.closest('button'); if (b) play(DATES[+b.dataset.i]); };
+  function play(d) {
+    let i = 0, score = 3;
+    const mood = () => score >= 8 ? 'love' : score >= 4 ? 'happy' : score >= 1 ? 'meh' : 'sad';
+    const draw = () => {
+      if (i >= FLIRT.length) return finish();
+      const r = FLIRT[i];
+      app.innerHTML = `<div class="top"><button class="back" id="back">&#8249;</button><h2>${d.name}</h2></div>
+      <div class="meter"><div style="width:${Math.max(4, Math.min(100, score / 14 * 100))}%"></div></div><div class="who" style="font-size:12px">Chemistry</div>
+      <div class="date">${face(mood(), d.look)}<div class="bubble pop">${esc(r.say)}</div></div>
+      <div class="opts">${shuffle(r.opts.map((o, k) => [o, k])).map(([o]) => `<button class="opt" data-v="${o[1]}">${esc(o[0])}</button>`).join('')}</div>`;
+      $('#back').onclick = () => history.back();
+      app.querySelector('.opts').onclick = e => {
+        const v = e.target.dataset.v; if (v == null) return;
+        score += +v; app.querySelectorAll('.opt').forEach(b => b.disabled = true);
+        e.target.classList.add(+v > 0 ? 'right' : 'wrong');
+        if (+v >= 2) { flash(pick(['Smooth','Ooh la la','Swoon'])); beep(880, .2, 'triangle'); }
+        else if (+v > 0) { flash(pick(['Cheeky','Ha, cute'])); beep(660, .15, 'triangle'); }
+        else { flash(pick(['Cringe','Yikes','Oof'])); beep(160, .35, 'sawtooth'); buzz(120); }
+        app.querySelector('.date svg').outerHTML = face(mood(), d.look);
+        i++; setTimeout(draw, 1200);
+      };
+    };
+    const finish = () => {
+      const m = score >= 13 ? ['love', `${d.name} grabs your collar and pulls you into a cab. What happens next is heavily censored.`, 'Certified smooth operator.']
+        : score >= 7 ? ['happy', `You get ${d.name}'s number and a lingering kiss goodnight. Second date is a lock.`, 'Not bad at all.']
+        : score >= 2 ? ['meh', `${d.name} says they "had a nice time". You both know what that means.`, 'Friend-zoned with honours.']
+        : ['sad', `${d.name} fakes an emergency call about their sick goldfish and sprints out.`, 'Catastrophic failure. Kebab for one.'];
+      app.innerHTML = `<div class="top"><button class="back" id="back">&#8249;</button><h2>${d.name}</h2></div>
+      <div class="date">${face(m[0], d.look)}<div class="card pop" style="min-height:0;margin-top:10px"><span class="tag">Chemistry ${score}/14</span><p style="margin:14px 0 6px">${m[1]}</p><p style="margin:0;color:var(--gold);font-weight:700">${m[2]}</p></div></div>
+      <div class="row"><button class="btn" id="again">Try another date</button></div>`;
+      $('#back').onclick = () => history.back(); $('#again').onclick = gFlirt;
+    };
+    draw();
+  }
+}
+
+// ---------- kink games ----------
+let kinkOk = false;
+const sw = () => esc(store.get('safeword', '') || 'red');
+function kinkGate(title, go) {
+  if (kinkOk) return go();
+  shell(title, `<div class="card pop" style="min-height:0">${ART.mask}<p style="margin:12px 0 6px;font-weight:700">House rules before you play</p><p style="margin:0;font-size:16px;color:var(--muted);line-height:1.5">Talk limits first. Agree a safe word. Anyone a card involves gives an enthusiastic yes, every time, including people outside your couple. Any card can be vetoed, no questions asked. Too drunk to decide means no.</p></div>
+  <input id="sw" maxlength="20" placeholder="Safe word (default: red)" style="width:100%;margin-top:14px">
+  <div class="row"><button class="btn" id="ok">We're all in</button></div>`);
+  $('#sw').value = store.get('safeword', '');
+  $('#ok').onclick = () => { kinkOk = true; store.set('safeword', $('#sw').value.trim()); go(); };
+}
+
+function gKink() { kinkGate('Kink Challenges', () => {
+  let heat = store.get('kheat', 0), cat = 'All', turn = 0;
+  const decks = {};
+  const draw = () => {
+    const key = heat + cat, pool = KINK[heat].filter(c => cat === 'All' || c[0] === cat);
+    if (!pool.length) return null;
+    if (!decks[key]) decks[key] = deck(pool);
+    return decks[key]();
+  };
+  shell('Kink Challenges', `<div class="seg" id="heat">${['Tease','Bold','Wild'].map((h, i) => `<button data-h="${i}">${h}</button>`).join('')}</div>
+  <div class="chiprow" id="cats">${KINK_CATS.map(c => `<button data-c="${c}">${c}</button>`).join('')}</div>
+  <div class="who" id="who"></div>
+  <div class="card" id="card">${ART.mask}<p style="margin:10px 0 0">Draw a challenge. Hard no? Veto it.</p></div>
+  <div class="row"><button class="btn hot" id="draw">Draw a challenge</button></div>
+  <div class="row"><button class="btn ghost" id="veto">Veto</button><button class="btn ghost" id="next">Next player &rarr;</button></div>
+  <div class="note">Safe word: <b>${sw()}</b>. Say it and everything stops.</div>`);
+  const marks = () => {
+    $('#heat').querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.h === heat));
+    $('#cats').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.c === cat));
+    $('#who').innerHTML = `Your turn, <b>${esc(plist()[turn % plist().length])}</b>`;
+  };
+  const show = () => {
+    const c = draw(), el = $('#card');
+    el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+    el.innerHTML = c ? `<span class="tag">${c[0]} &middot; ${['Tease','Bold','Wild'][heat]}</span><p style="margin:0">${esc(c[1])}</p>`
+      : `<p style="margin:0">No ${cat.toLowerCase()} cards at this level. Try another heat.</p>`;
+    beep(330, .25, 'sawtooth', .05); buzz(40);
+  };
+  marks();
+  $('#heat').onclick = e => { if (e.target.dataset.h) { heat = +e.target.dataset.h; store.set('kheat', heat); marks(); } };
+  $('#cats').onclick = e => { if (e.target.dataset.c) { cat = e.target.dataset.c; marks(); } };
+  $('#draw').onclick = show;
+  $('#veto').onclick = () => { flash('Vetoed. No questions.'); show(); };
+  $('#next').onclick = () => { turn++; marks(); };
+}); }
+
+function gYnm() { kinkGate('Yes, No, Maybe', () => {
+  const p = plist(), names = [p[0] || 'Partner A', p[1] || 'Partner B'];
+  const ans = [[], []]; let who = 0, i = 0;
+  const intro = () => {
+    shell('Yes, No, Maybe', `<div class="card pop">${ART.ynm}<p style="margin:12px 0 6px"><b>${esc(names[who])}</b>, you're up.</p><p style="margin:0;font-size:15px;color:var(--muted);line-height:1.5">${who ? esc(names[0]) + ' is done and their answers are hidden. ' : ''}Take the phone somewhere private and answer honestly. Your partner will only ever see the things you both said yes or maybe to.</p></div>
+    <div class="row"><button class="btn" id="go">I'm alone. Start.</button></div>`);
+    $('#go').onclick = q;
+  };
+  const q = () => {
+    if (i >= YNM.length) { if (who === 0) { who = 1; i = 0; return intro(); } return results(); }
+    shell('Yes, No, Maybe', `<div class="meter"><div style="width:${i / YNM.length * 100}%"></div></div><div class="who">${esc(names[who])} &middot; ${i + 1} of ${YNM.length}</div>
+    <div class="card pop" style="min-height:170px"><p style="margin:0;font-size:24px;font-weight:700">${esc(YNM[i])}</p></div>
+    <div class="ynm"><button class="y" data-a="2">Yes</button><button class="m" data-a="1">Maybe</button><button class="n" data-a="0">No</button></div>`);
+    app.querySelector('.ynm').onclick = e => { const a = e.target.dataset.a; if (a == null) return; ans[who][i++] = +a; beep(400 + a * 200, .08, 'triangle'); q(); };
+  };
+  const results = () => {
+    const both = [], talk = [];
+    YNM.forEach((k, j) => { const x = ans[0][j], y = ans[1][j]; if (x === 2 && y === 2) both.push(k); else if (x > 0 && y > 0) talk.push(k); });
+    const li = a => a.map(k => `<li>${esc(k)}</li>`).join('');
+    shell('Yes, No, Maybe', `<div class="card pop" style="min-height:0">${ART.heart}<p style="margin:10px 0 0;font-weight:700">${esc(names[0])} &amp; ${esc(names[1])}: ${both.length} perfect match${both.length === 1 ? '' : 'es'}</p></div>
+    <h3 class="section" style="font-size:20px">You both said yes</h3><ul class="list">${li(both) || '<li>Nothing yet. Start with the maybes.</li>'}</ul>
+    <h3 class="section" style="font-size:20px">Worth a conversation</h3><ul class="list">${li(talk) || '<li>Nothing here.</li>'}</ul>
+    <div class="note">Anything either of you said no to stays secret.</div>
+    <div class="row"><button class="btn ghost" id="again">Start over</button></div>`);
+    $('#again').onclick = gYnm;
+  };
+  intro();
+}); }
+
+function gPower() { kinkGate('Power Play', () => {
+  const p = plist().length >= 2 ? plist() : ['Dom', 'sub'];
+  let dom = 0, sub = 1, len = 10, iv = null;
+  cleanup = () => clearInterval(iv);
+  const setup = () => {
+    const opts = id => `<div class="chiprow" id="${id}">${p.map((n, i) => `<button data-i="${i}">${esc(n)}</button>`).join('')}</div>`;
+    shell('Power Play', `<div class="card pop" style="min-height:0">${ART.collar}<p style="margin:10px 0 0;font-size:16px;color:var(--muted);line-height:1.5">One Dom, one sub. The sub can call yellow to slow down, or the safe word to stop, at any time.</p></div>
+    <div class="ptitle" style="margin-top:16px">In charge</div>${opts('dom')}<div class="ptitle">Obeying</div>${opts('sub')}
+    <div class="ptitle">Scene length</div><div class="seg" id="len">${[6, 10, 15].map(n => `<button data-n="${n}">${n} orders</button>`).join('')}</div>
+    <div class="row"><button class="btn ghost" id="rand">Random roles</button><button class="btn hot" id="start">Start scene</button></div>`);
+    const marks = () => {
+      $('#dom').querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.i === dom));
+      $('#sub').querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.i === sub));
+      $('#len').querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.n === len));
+      $('#start').disabled = dom === sub;
+    };
+    marks();
+    $('#dom').onclick = e => { if (e.target.dataset.i) { dom = +e.target.dataset.i; marks(); } };
+    $('#sub').onclick = e => { if (e.target.dataset.i) { sub = +e.target.dataset.i; marks(); } };
+    $('#len').onclick = e => { if (e.target.dataset.n) { len = +e.target.dataset.n; marks(); } };
+    $('#rand').onclick = () => { dom = rnd(p.length); do { sub = rnd(p.length); } while (sub === dom); marks(); };
+    $('#start').onclick = () => scene(shuffle(POWER).slice(0, len));
+  };
+  const D = () => esc(p[dom]), Sb = () => esc(p[sub]);
+  const scene = cards => {
+    let k = 0;
+    const card = () => {
+      clearInterval(iv);
+      if (k >= cards.length) return aftercare('Scene complete.');
+      if (k > 0 && k % 4 === 0 && !card.checked) { card.checked = true; return checkin(); }
+      card.checked = false;
+      const [txt, secs] = cards[k];
+      shell('Power Play', `<div class="meter"><div style="width:${k / cards.length * 100}%"></div></div><div class="who"><b>${D()}</b> commands <b>${Sb()}</b> &middot; order ${k + 1} of ${cards.length}</div>
+      <div class="card pop"><span class="tag">Order</span><p style="margin:0;font-size:22px">${esc(txt)}</p>${secs ? `<div class="timer" id="tm">${secs}s</div>` : ''}</div>
+      <div class="row">${secs ? '<button class="btn ghost" id="go">Start timer</button>' : ''}<button class="btn" id="done">Done, next order</button></div>
+      <div class="row"><button class="btn hot" id="safe">${Sb()} says the safe word</button></div>`);
+      beep(220, .3, 'sawtooth', .05);
+      if (secs) $('#go').onclick = () => {
+        let left = secs; $('#go').disabled = true; clearInterval(iv);
+        iv = setInterval(() => { left--; const t = $('#tm'); if (t) t.textContent = left + 's'; if (left <= 0) { clearInterval(iv); beep(880, .5, 'triangle'); buzz([100, 80, 100]); if (t) t.textContent = 'Time'; } }, 1000);
+      };
+      $('#done').onclick = () => { k++; card(); };
+      $('#safe').onclick = () => aftercare('Safe word called. Scene over, no questions asked.');
+    };
+    const checkin = () => {
+      shell('Power Play', `<div class="card pop"><span class="tag">Check-in</span><p style="margin:0">${Sb()}, what colour are you?</p></div>
+      <div class="ynm"><button class="y" id="g">Green</button><button class="m" id="yl">Yellow</button><button class="n" id="r">Red</button></div>`);
+      $('#g').onclick = card;
+      $('#yl').onclick = () => { flash('Slowing down'); card(); };
+      $('#r').onclick = () => aftercare('Red called. Scene over, no questions asked.');
+    };
+    card();
+  };
+  const aftercare = why => {
+    clearInterval(iv);
+    shell('Power Play', `<div class="card pop">${ART.heart}<p style="margin:12px 0 6px;font-weight:700">${why}</p><p style="margin:0;font-size:16px;color:var(--muted);line-height:1.5">Aftercare time. Water, a blanket, a cuddle. ${D()}, check in with ${Sb()}. Then tell each other the best bit.</p></div>
+    <div class="row"><button class="btn" id="again">New scene</button></div>`);
+    $('#again').onclick = setup;
+  };
+  setup();
+}); }
+
+// ---------- updates ----------
+const hasNN = () => typeof window.NN !== 'undefined';
+const upd = {mode: store.get('updMode', 'auto'), channel: store.get('updChannel', 'stable'), info: null, msg: '', auto: false, busy: false};
+function updCheck(auto) {
+  if (!hasNN() || upd.busy) return;
+  upd.auto = auto; if (!auto) upd.msg = 'Checking for updates...';
+  drawUpd(); NN.check(upd.channel);
+}
+function updInstall() { if (upd.info && hasNN()) { upd.busy = true; upd.msg = 'Starting download...'; drawUpd(); NN.install(upd.info.url); } }
+window.nnUpdate = o => {
+  switch (o.state) {
+    case 'available':
+      upd.info = o; upd.msg = `Version ${o.version}${o.prerelease ? ' (beta)' : ''} is available.`;
+      if (upd.auto && upd.mode === 'auto') updInstall();
+      break;
+    case 'current': upd.info = null; upd.msg = upd.auto ? '' : `You're on the latest version (${o.current}).`; break;
+    case 'downloading': upd.busy = true; upd.msg = `Downloading update... ${o.progress}%`; break;
+    case 'installing': upd.msg = 'Installing...'; break;
+    case 'confirm': upd.msg = 'Tap Update on the Android prompt to finish.'; break;
+    case 'permission': upd.msg = 'Allow Naughty Night to install apps, then come back. The update carries on by itself.'; break;
+    case 'installed': upd.busy = false; upd.info = null; upd.msg = 'Updated. Reopen the app.'; break;
+    case 'error': upd.busy = false; upd.msg = (upd.auto && !upd.info) ? '' : o.message; break;
+  }
+  if (o.state === 'available' || o.state === 'current') upd.auto = false;
+  drawUpd();
+};
+function drawUpd() {
+  const ban = $('#updBanner');
+  if (ban) {
+    if (upd.busy) ban.innerHTML = `<div class="banner"><span>${esc(upd.msg)}</span></div>`;
+    else if (upd.info) ban.innerHTML = `<div class="banner"><span>Update ${esc(upd.info.version)} is ready</span><button id="banGo">Install</button></div>`;
+    else ban.innerHTML = '';
+    const b = $('#banGo'); if (b) b.onclick = updInstall;
+  }
+  if (!$('#updPanel')) return;
+  $('#updMode').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === upd.mode));
+  $('#updCh').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === upd.channel));
+  $('#updHelp').textContent = {
+    auto: 'Checks each time the app opens, downloads new versions by itself and asks you to confirm the install.',
+    notify: 'Checks each time the app opens and shows a banner. You choose when to install.',
+    manual: 'Never checks by itself. Use the button below.'
+  }[upd.mode] + (upd.channel === 'beta' ? ' Beta gets pre-release builds first.' : '');
+  $('#updMsg').textContent = upd.msg;
+  $('#updNow').textContent = upd.info && !upd.busy ? `Install version ${upd.info.version}` : 'Check for updates now';
+  $('#updNow').onclick = upd.info && !upd.busy ? updInstall : () => updCheck(false);
+  $('#updNow').disabled = upd.busy;
+}
+
+route();
+if (hasNN() && upd.mode !== 'manual') setTimeout(() => updCheck(true), 1200);
+</script>
+</body>
+</html>
