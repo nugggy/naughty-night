@@ -3,3 +3,4 @@ build/
 *.keystore
 *.jks
 .keystore-pass
+*.idsig
