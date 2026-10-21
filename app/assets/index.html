@@ -9,7 +9,7 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-user-select:none;user-select:none}
 body{background:radial-gradient(ellipse at 50% -10%,#4a0d6e 0%,#14001f 65%) fixed}
-#app{max-width:560px;margin:0 auto;padding:16px 16px 48px}
+#app{max-width:560px;margin:0 auto;padding:16px 16px 80px}
 button{font:inherit;color:inherit}
 .logo{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:700;font-size:46px;text-align:center;margin:14px 0 0;background:linear-gradient(90deg,var(--pink),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
 .sub{text-align:center;color:var(--muted);margin:4px 0 18px;font-size:14px}
@@ -105,6 +105,21 @@ input{flex:1;min-width:0;background:rgba(0,0,0,.3);border:1px solid var(--line);
 .timer{font-size:54px;font-weight:900;text-align:center;color:var(--gold);font-variant-numeric:tabular-nums;margin:6px 0}
 .flash{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);font-size:30px;font-weight:900;color:var(--gold);text-shadow:0 0 20px var(--pink);pointer-events:none;animation:flash 1s forwards;z-index:9;white-space:nowrap}
 @keyframes flash{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}100%{opacity:0;transform:translate(-50%,-90%) scale(1)}}
+.card .ph{display:block;width:calc(100% + 36px);height:150px;object-fit:cover;margin:-22px -18px 16px;opacity:.85}
+.card svg.posart{width:100%;height:170px;margin-bottom:8px}
+.seg button:disabled{opacity:.3}
+.sos{position:fixed;right:12px;bottom:12px;display:flex;gap:6px;z-index:8}
+.sos button{border:1px solid var(--line);background:rgba(20,0,31,.92);border-radius:999px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer}
+.sos #sosStop{border-color:rgba(255,95,109,.7);color:#ffb3bb}
+.ov{position:fixed;inset:0;background:rgba(10,0,16,.94);z-index:10;display:flex;align-items:center;justify-content:center;padding:16px}
+.ico{display:inline-block;vertical-align:-4px}
+.ico svg{width:20px;height:20px}
+.small{font-size:15px;color:var(--muted);line-height:1.5}
+.line{font-family:Georgia,serif;font-style:italic;color:var(--gold)}
+.day{display:flex;align-items:center;gap:10px}
+.day .txt{flex:1}
+.day.locked{opacity:.5}
+textarea{width:100%;min-height:70px;background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:12px;color:var(--text);padding:10px 12px;font:inherit;font-size:15px;-webkit-user-select:text;user-select:text;resize:vertical}
 </style>
 </head>
 <body>
@@ -120,7 +135,9 @@ const store = {
 const rnd = n => Math.floor(Math.random() * n);
 const pick = a => a[rnd(a.length)];
 const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = rnd(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-const deck = arr => { let d = []; return () => { if (!d.length) d = shuffle(arr); return d.pop(); }; };
+const deck = arr => { let d = []; return () => { if (!arr.length) return undefined; if (!d.length) d = shuffle(arr); return d.pop(); }; };
+const pop = el => { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); };
+const mmss = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let players = store.get('players', ['Player 1', 'Player 2']);
 let cleanup = null;
@@ -139,6 +156,17 @@ function beep(freq, dur, type, vol) {
 }
 const buzz = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} };
 function flash(txt) { const d = document.createElement('div'); d.className = 'flash'; d.textContent = txt; document.body.appendChild(d); setTimeout(() => d.remove(), 1000); }
+// Counts down in el, then calls done. Stops by itself if el leaves the page.
+function countdown(secs, el, done) {
+  const end = Date.now() + secs * 1000; el.textContent = mmss(secs);
+  const id = setInterval(() => {
+    if (!document.body.contains(el)) return clearInterval(id);
+    const left = Math.max(0, Math.ceil((end - Date.now()) / 1000));
+    el.textContent = mmss(left);
+    if (left <= 0) { clearInterval(id); beep(880, .5, 'triangle'); buzz([100, 80, 100]); if (done) done(); }
+  }, 250);
+  return id;
+}
 
 // ---------- art ----------
 const S = (vb, inner) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}">${inner}</svg>`;
@@ -159,8 +187,24 @@ const ART = {
   bull: S('0 0 100 100', `<path d="M24 34 C8 30 2 14 6 4 C12 16 22 22 34 24Z M76 34 C92 30 98 14 94 4 C88 16 78 22 66 24Z" fill="#f3e2c7"/><rect x="18" y="22" width="64" height="64" rx="14" fill="#ffcc4d" transform="rotate(-6 50 54)"/><rect x="18" y="22" width="64" height="64" rx="14" fill="none" stroke="#2a0640" stroke-width="3" transform="rotate(-6 50 54)"/><text x="50" y="70" font-family="Georgia,serif" font-weight="900" font-size="38" text-anchor="middle" fill="#2a0640" transform="rotate(-6 50 54)">W</text><circle cx="72" cy="36" r="4" fill="#ff2e88"/>`),
   clapper: S('0 0 100 100', `<rect x="12" y="40" width="76" height="48" rx="6" fill="#2a0640" stroke="#ff2e88" stroke-width="3"/><path d="M12 30 L84 14 L88 30 L16 46Z" fill="#fff"/><path d="M28 26 L38 42 M48 22 L58 38 M68 18 L78 34" stroke="#2a0640" stroke-width="6"/><path d="M42 60 C42 55 46 53 50 57 C54 53 58 55 58 60 C58 65 50 72 50 72 C50 72 42 65 42 60Z" fill="#ff2e88"/>`),
   stopwatch: S('0 0 100 100', `<rect x="42" y="4" width="16" height="10" rx="3" fill="#ffcc4d"/><path d="M76 22 L84 14" stroke="#ffcc4d" stroke-width="6" stroke-linecap="round"/><circle cx="50" cy="56" r="38" fill="#fff"/><circle cx="50" cy="56" r="38" fill="none" stroke="#ff2e88" stroke-width="6"/><path d="M50 56 V30" stroke="#2a0640" stroke-width="5" stroke-linecap="round"/><path d="M50 56 L68 66" stroke="#ff2e88" stroke-width="5" stroke-linecap="round"/><circle cx="50" cy="56" r="4" fill="#2a0640"/>`),
-  ynm: S('0 0 100 100', `<rect x="10" y="8" width="80" height="24" rx="12" fill="#2ecc71"/><rect x="10" y="38" width="80" height="24" rx="12" fill="#ffcc4d"/><rect x="10" y="68" width="80" height="24" rx="12" fill="#ff2e63"/><g font-family="system-ui,sans-serif" font-weight="900" font-size="15" fill="#14001f" text-anchor="middle"><text x="50" y="25">YES</text><text x="50" y="55">MAYBE</text><text x="50" y="85" fill="#fff">NO</text></g>`)
+  ynm: S('0 0 100 100', `<rect x="10" y="8" width="80" height="24" rx="12" fill="#2ecc71"/><rect x="10" y="38" width="80" height="24" rx="12" fill="#ffcc4d"/><rect x="10" y="68" width="80" height="24" rx="12" fill="#ff2e63"/><g font-family="system-ui,sans-serif" font-weight="900" font-size="15" fill="#14001f" text-anchor="middle"><text x="50" y="25">YES</text><text x="50" y="55">MAYBE</text><text x="50" y="85" fill="#fff">NO</text></g>`),
+  lovemap: S('0 0 100 100', `<path d="M50 90 C20 66 5 50 5 31 C5 16 17 6 30 6 C40 6 47 12 50 19 C53 12 60 6 70 6 C83 6 95 16 95 31 C95 50 80 66 50 90Z" fill="#9b5cff"/><text x="50" y="62" font-family="Georgia,serif" font-weight="900" font-size="44" text-anchor="middle" fill="#fff">?</text>`),
+  drop: S('0 0 100 100', `<path d="M50 6 C62 30 80 46 80 64 C80 82 66 94 50 94 C34 94 20 82 20 64 C20 46 38 30 50 6Z" fill="#ffcc4d"/><path d="M34 62 C34 72 40 80 48 82" stroke="#fff" stroke-opacity=".6" stroke-width="5" fill="none" stroke-linecap="round"/>`),
+  feather: S('0 0 100 100', `<path d="M84 8 C50 12 22 40 18 84 C40 80 70 60 84 8Z" fill="#fff1f8"/><path d="M84 8 L10 94" stroke="#ff2e88" stroke-width="4" stroke-linecap="round"/><path d="M60 30 L44 30 M66 44 L46 50 M56 60 L34 64" stroke="#c9a8d6" stroke-width="3" stroke-linecap="round"/>`),
+  candle: S('0 0 100 100', `<rect x="34" y="40" width="32" height="54" rx="6" fill="#fff1f8"/><path d="M34 52 H66" stroke="#ff2e88" stroke-width="4"/><path d="M50 6 C58 18 62 24 62 30 C62 37 56 40 50 40 C44 40 38 37 38 30 C38 24 44 18 50 6Z" fill="#ffcc4d"/><path d="M50 18 C54 25 55 28 55 31 C55 34 53 36 50 36 C47 36 45 34 45 31 C45 28 47 25 50 18Z" fill="#ff5a1f"/>`),
+  script: S('0 0 100 100', `<rect x="18" y="10" width="64" height="80" rx="6" fill="#fff1f8"/><path d="M30 28 H70 M30 40 H70 M30 52 H58" stroke="#9b5cff" stroke-width="4" stroke-linecap="round"/><path d="M50 80 C50 80 38 72 38 65 C38 60 42 58 45 58 C47 58 49 59 50 61 C51 59 53 58 55 58 C58 58 62 60 62 65 C62 72 50 80 50 80Z" fill="#ff2e88"/>`),
+  pos: S('0 0 100 100', `<circle cx="36" cy="22" r="12" fill="#ff2e88"/><circle cx="64" cy="22" r="12" fill="#9b5cff"/><path d="M36 40 C18 56 28 84 50 90" stroke="#ff2e88" stroke-width="10" fill="none" stroke-linecap="round"/><path d="M64 40 C82 56 72 84 50 90" stroke="#9b5cff" stroke-width="10" fill="none" stroke-linecap="round"/>`),
+  glasses: S('0 0 100 100', `<g transform="rotate(-14 34 50)"><path d="M18 14 H50 C50 36 44 48 34 48 C24 48 18 36 18 14Z" fill="#ff2e88"/><path d="M34 48 V82 M22 84 H46" stroke="#e8e0ff" stroke-width="4" stroke-linecap="round"/></g><g transform="rotate(14 66 50)"><path d="M50 14 H82 C82 36 76 48 66 48 C56 48 50 36 50 14Z" fill="#9b5cff"/><path d="M66 48 V82 M54 84 H78" stroke="#e8e0ff" stroke-width="4" stroke-linecap="round"/></g><path d="M44 6 L50 0 M56 6 L50 0" stroke="#ffcc4d" stroke-width="3" stroke-linecap="round"/>`),
+  calendar: S('0 0 100 100', `<rect x="12" y="18" width="76" height="72" rx="10" fill="#fff1f8"/><rect x="12" y="18" width="76" height="20" rx="10" fill="#ff2e88"/><path d="M30 10 V26 M70 10 V26" stroke="#ffcc4d" stroke-width="6" stroke-linecap="round"/><path d="M50 46 C55 56 66 60 66 70 C66 78 59 84 50 84 C41 84 34 78 34 70 C34 64 40 60 42 54 C45 60 47 60 49 60 C48 56 48 51 50 46Z" fill="#ff5a1f"/>`),
+  pencil: S('0 0 100 100', `<rect x="14" y="14" width="56" height="74" rx="8" fill="#fff1f8"/><path d="M26 32 H58 M26 44 H58 M26 56 H44" stroke="#c9a8d6" stroke-width="4" stroke-linecap="round"/><path d="M82 30 L92 40 L56 76 L42 80 L46 66Z" fill="#ffcc4d"/><path d="M46 66 L56 76" stroke="#2a0640" stroke-width="3"/>`),
+  tick: S('0 0 24 24', `<circle cx="12" cy="12" r="11" fill="#2ecc71"/><path d="M7 12 L11 16 L17 8" stroke="#0b2a17" stroke-width="2.5" fill="none" stroke-linecap="round"/>`),
+  lock: S('0 0 24 24', `<rect x="5" y="11" width="14" height="10" rx="2" fill="#c9a8d6"/><path d="M8 11 V8 C8 5 10 4 12 4 C14 4 16 5 16 8 V11" stroke="#c9a8d6" stroke-width="2.5" fill="none"/>`)
 };
+// Position line art: two abstract figures, pink (A) and purple (B).
+const PF = (h, d, c) => `<circle cx="${h[0]}" cy="${h[1]}" r="7" fill="${c}"/><path d="${d}" stroke="${c}" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`;
+const POSART = (a, b, extra) => `<svg class="posart" viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">${extra || ''}<path d="M6 96 H154" stroke="rgba(255,255,255,.15)" stroke-width="2"/>${PF(b[0], b[1], '#9b5cff')}${PF(a[0], a[1], '#ff2e88')}</svg>`;
+const BED = '<rect x="8" y="64" width="92" height="10" rx="3" fill="rgba(255,204,77,.35)"/><path d="M14 74 V96 M94 74 V96" stroke="rgba(255,204,77,.35)" stroke-width="4"/>';
+const CHAIR = '<path d="M38 28 V96 M38 66 H84 V96" stroke="rgba(255,204,77,.5)" stroke-width="5" fill="none" stroke-linecap="round"/>';
 // ---------- content ----------
 const TOD = {
   truth: [
@@ -369,30 +413,148 @@ const POWER = [
   ["Stand in the corner and wait.",45],
   ["Your Dom chooses your next item of clothing to go. You remove it on your knees.",0]
 ];
+// ---------- couples content ----------
+const LOVEMAP = ["What's {n}'s favourite place to be kissed?","What did {n} think of you the first time you met?","What's {n}'s go-to comfort food after a big night?","Which of your outfits does {n} like best?","What's one thing {n} would never try in bed?","Where would {n} pick for a dirty weekend away?","What song would {n} choose to set the mood?","What's {n}'s biggest turn-on that isn't physical?","Morning, afternoon or night: when is {n} most in the mood?","Which part of your body does {n} secretly love most?","What's {n}'s favourite memory of the two of you?","What's a fantasy {n} has hinted at but never asked for?","Lights on or lights off for {n}?","What does {n} want more of from you?","Who's {n}'s celebrity hall pass?","What's the first thing {n} notices when you dress up?","Where is {n} most ticklish?","What's the riskiest place {n} would say yes to?","What's {n}'s favourite way to be woken up?","Slow and romantic or fast and urgent: what's {n}'s pick tonight?","What compliment makes {n} blush?","What's {n}'s idea of perfect aftercare?","Which of your habits secretly drives {n} wild?","Which of your dates would {n} rate the best ever?","What's {n}'s favourite kind of kiss?","What would {n} wear if they wanted to seduce you?","What's one thing {n} would love you to say more in bed?","Where does {n} like to be touched when they're stressed?","What's {n}'s favourite position?","What's {n}'s secret guilty pleasure?"];
+const LM_FORFEIT = ["Kiss {n} somewhere they choose.","Give {n} a 30-second massage. They pick where.","Lose an item of clothing.","Tell {n} three things you love about their body.","{n} asks you one question. Answer it honestly.","{n} picks your outfit for your next date night.","Whisper to {n} what you'd like to do later.","Slow dance with {n} for one song, no talking.","Let {n} pick a spot to kiss you, then hold still for ten seconds.","Tell {n} the moment you knew you fancied them."];
+// Slow Burn: [stage name, rule, prompts, rule if a limit blocks the first one]
+const SLOWBURN = [
+  [["Eyes only","No touching at all. Sit close and hold eye contact.",["Tell them what you noticed about them the first time you met.","Take turns giving compliments. First to look away loses.","Describe the outfit you'd love to see them in."]],
+   ["Hands only, clothes on","Hands are allowed, over clothes only. No kissing yet.",["Hold hands and trace their palm with your thumb.","Run your fingers slowly through their hair.","Massage their shoulders while you whisper something sweet."]],
+   ["Lips, above the neck","Kissing is allowed now, but only above the neck.",["Kiss them slowly, then pull back and make them wait.","Kiss along their jawline to their ear.","Take turns. One kisses, the other stays perfectly still."]],
+   ["One layer off","Each of you removes one item of the other's clothing. Hands can wander a little.",["Take off one item of their clothing as slowly as you can.","Kiss their neck and shoulders now they're uncovered.","Cuddle close and tell them how much you've wanted this."]],
+   ["Your call","The locks are off. Go as far as you've both agreed, and no further.",["Ask them what they want next, and give it to them.","Take it slow and see where it goes.","Lights down, phone away. You've earned it."]]],
+  [["Hands only, clothes on","No kissing. Hands over clothes only.",["Trace slow lines down their back.","Pull them close by the hips and hold them there.","Run your hands up their thighs, then stop."]],
+   ["Kisses above the waist","Kiss anywhere above the waist. Hands stay where they are.",["Kiss down their neck to their collarbone.","Kiss them hard, then barely at all.","Kiss their wrists, then their palms."]],
+   ["Down to underwear","Undress each other to your underwear, one item at a time, taking turns.",["Take your time with every button.","Stop and look at them before the next item comes off.","Kiss each new bit of skin you uncover."]],
+   ["Hands anywhere","Hands can go anywhere you've both said yes to. Underwear stays on.",["Explore slowly, as if it's the first time.","Ask them to show you where they want your hands.","Tease them over their underwear until they ask for more."]],
+   ["No rules but yes","Everything you've both agreed to is unlocked.",["Tell them exactly what you want, then do it.","Keep the pace slow for as long as you can bear.","Whoever cracks first has to beg."]]],
+  [["Look, don't touch","One of you undresses slowly while the other watches. No touching at all.",["Undress like you're putting on a show for them.","Sit on your hands while they undress in front of you.","Tell them, in detail, what you're going to do when this stage ends."]],
+   ["Blindfolded","The teased partner is blindfolded. The teaser uses only lips and fingertips.",["Kiss them somewhere unexpected.","Trace slow circles everywhere except where they want it most.","Whisper what's coming next, then make them wait."],"The teased partner keeps their eyes closed. The teaser uses only lips and fingertips."],
+   ["Hands tied","The teased partner's hands are bound or held above their head. Everything else is fair game, over underwear.",["Pin their wrists and kiss them until they squirm.","Grind slowly against them, then stop.","Ask them to beg for the next stage."],"The teased partner keeps their hands flat on the bed. Everything else is fair game, over underwear."],
+   ["Almost","Underwear comes off. Anything you've agreed, but nobody finishes yet.",["Take them right to the edge, then stop and wait.","Switch roles for a few minutes.","Make them say exactly what they want."]],
+   ["Unlocked","The locks are off. Everything you've both agreed to.",["Go for it.","Take it at their pace, then yours.","Finish together if you can."]]]
+];
+// [name, photo, how, minimum heat]
+const SENSATIONS = [
+  ["Feather","feather","Trace slow, light lines. Barely touch the skin. Go slower than feels natural.",0],
+  ["Ice","ice","Glide an ice cube in a slow line, then follow it with warm kisses to chase the cold.",0],
+  ["Massage oil","oil","Warm a little oil between your palms first. Long, slow strokes with the whole hand.",0],
+  ["Silk","silk","Drag a silk scarf or soft fabric across the skin, wrap it gently, then pull it away.",0],
+  ["Warm breath","candle","Get close without touching. Breathe slowly and warmly across the skin, then blow cool.",0],
+  ["Lips only","slowburn","Soft kisses, no tongue. Then just the brush of your lips, barely touching.",0],
+  ["Fingernails","hands","Light scratches with your nails, top to bottom. Ask how hard they like it.",1]
+];
+const ZONES = [["the back of the neck",0],["the inner wrists",0],["the collarbone",0],["behind the ears",0],["the lower back",0],["the length of the spine",0],["the backs of the knees",0],["the shoulders",0],["the palms",0],["the feet",0],["the stomach",1],["the inner thighs",1],["the hips",1],["the chest",1],["anywhere they say yes to",2],["wherever they're most sensitive",2]];
+const MASSAGE = [
+  ["Long glides","oil","Flat palms, long slow strokes in one direction. Keep one hand on them at all times."],
+  ["Kneading","massage","Lift and squeeze the muscle gently between fingers and thumb, like kneading dough. Slow rhythm."],
+  ["Thumb circles","stones","Small, firm circles with both thumbs. Move a thumb's width at a time and ask about pressure."],
+  ["Raking","hands","Spread and curve your fingers, then drag them slowly downward. Lighter on the way back up."],
+  ["Forearm glide","spa","Lean in and glide your forearm along the muscle. Great on backs and thighs. Go easy over bone."],
+  ["Feather finish","feather","Barely touching, trace your fingertips over the area you just worked. Pure goosebumps."],
+  ["Press and hold","stones","Press slowly with your palm, hold for five seconds, release. Move along and repeat."],
+  ["Scalp rub","candle","Fingertips in the hair, small slow circles from the hairline back. A gentle tug at the roots if they like it."]
+];
+const M_AREAS = [["the shoulders",0],["the upper back",0],["the lower back",0],["the neck",0],["the hands",0],["the feet",0],["the calves",0],["the arms",0],["the whole back",0],["the thighs",1],["the glutes",1]];
+const M_TIPS = ["Warm the oil in your hands before it touches skin.","Check the pressure once, early. Then trust it.","Keep a hand on them between strokes so it never feels like it stopped.","Never press straight down on the spine or any bone.","Slower is almost always better.","A towel underneath saves the sheets."];
+const SCENES = [
+  {t:"Last call", img:"hotelbar", set:"A hotel bar, just before closing.", a:"A traveller in town for one night", b:"The local who's been watching them all evening", tw:"Neither of you uses your real name.", line:"You've been nursing that drink for an hour. Waiting for someone?", beats:["The local makes the first move and buys a drink.","The traveller mentions their room number, almost by accident.","Head to the bedroom. Stay in character until the door closes."]},
+  {t:"After hours", img:"office", set:"An empty office, late at night.", a:"The boss working back late", b:"The new hire who came back for their keys", tw:"The cleaner could walk in at any moment.", line:"I didn't think anyone else was still here.", beats:["Small talk that's a little too friendly for work.","The boss asks for help with something on the desk.","Somebody locks the door."]},
+  {t:"Moonlight swim", img:"beach", set:"A deserted beach at night.", a:"A lifeguard finishing a late shift", b:"A swimmer who stayed out far too long", tw:"Your clothes are on the sand and the tide's coming in.", line:"Beach closed an hour ago. You'll need a towel.", beats:["The lifeguard offers a towel and takes their time drying them off.","The swimmer admits they stayed out on purpose.","Find somewhere warm, fast."]},
+  {t:"Snowed in", img:"cabin", set:"A cabin with the fire going and no phone signal.", a:"The guest who got there first", b:"The stranger who booked the same cabin by mistake", tw:"There's only one bed.", line:"Well. Looks like one of us gets the couch.", beats:["Argue, politely, about who gets the bed.","Share a drink by the fire to warm up.","Decide the couch is far too cold."]},
+  {t:"Private dance", img:"club", set:"The VIP room of a nightclub.", a:"The dancer", b:"The customer with a very generous budget", tw:"The rules say no touching. One of you is going to break them.", line:"First rule of this room: you look, you don't touch.", beats:["The dancer sets the rules and the price.","The customer asks what it costs to break one rule.","The dancer decides the house rules don't apply tonight."]},
+  {t:"Blackout", img:"rain", set:"Rain on the windows and the power just went out.", a:"A neighbour knocking to borrow a torch", b:"The one who answers the door in a towel", tw:"The power comes back on halfway through.", line:"Sorry, I didn't think you'd... I can come back.", beats:["The neighbour is invited in out of the rain.","There's only one torch, so you have to stay close.","The lights come back on. Nobody moves."]},
+  {t:"Room service", img:"hotelroom", set:"A luxury hotel suite.", a:"The guest who ordered room service", b:"The staff member delivering it", tw:"What they ordered wasn't on the menu.", line:"Room service. Where would you like it?", beats:["The staff member is asked to stay while the guest checks the order.","The guest asks about the tip.","Do not disturb goes on the door."]},
+  {t:"Pulled over", img:"car", set:"A car parked on a quiet road at night.", a:"A driver heading home late", b:"The officer who pulls them over", tw:"The driver has something to hide, and it isn't in the boot.", line:"Do you know how fast you were going?", beats:["The officer asks the driver to step out of the car.","The driver tries to talk their way out of the fine.","The officer decides on a different kind of penalty."]},
+  {t:"Midnight snack", img:"kitchen", set:"The kitchen, 2 am.", a:"The housemate who couldn't sleep", b:"The housemate who catches them there", tw:"You've both been pretending not to want this for months.", line:"You too? I thought I was the only one awake.", beats:["Share whatever's in the fridge.","One of you finally admits it.","Quietly now. The walls are thin."]},
+  {t:"Spa day", img:"spa", set:"A candlelit massage room.", a:"The massage therapist", b:"The client who keeps asking for more pressure", tw:"The appointment runs well over time.", line:"Just relax. Tell me if anything's too much.", beats:["Start with a proper shoulder massage.","The client asks for a little more, somewhere new.","The therapist cancels their next booking."]},
+  {t:"Blind date", img:"datenight", set:"A candlelit table for two.", a:"Someone on a blind date", b:"Their date, who turns out to be dangerously flirty", tw:"Pretend you've never met, and learn something new about each other.", line:"So. Tell me something your profile didn't.", beats:["Three questions each that you've never asked before.","Play footsies under the table.","Skip dessert."]},
+  {t:"The homecoming", img:"slowburn", set:"A candlelit bedroom after months apart.", a:"The one just back from a long trip away", b:"The partner who's been counting the days", tw:"Make it last. No rushing allowed.", line:"Do you have any idea how much I've missed you?", beats:["Tell each other what you missed most.","Undress each other like it's the first time.","Take all night."]}
+];
+const POSITIONS = [
+  {n:"Classic", lvl:1, how:"One partner lies back, the other on top, face to face. Plenty of kissing and eye contact.", tip:"A pillow under the hips changes the angle.", art:[[[38,60],"M47 64 L80 72 L100 86 L130 88 M47 64 L42 86"],[[26,84],"M36 86 L70 86 L92 68 L108 76"]]},
+  {n:"On top", lvl:1, how:"One partner lies back while the other straddles their hips and sets the pace.", tip:"The one underneath keeps their hands busy.", art:[[[80,30],"M80 39 V72 L66 88 L90 90 M80 46 L60 70"],[[26,84],"M36 86 L80 86 L110 86 L134 88"]]},
+  {n:"Reverse on top", lvl:2, how:"Straddle facing their feet and lean forward on their knees for balance.", tip:"Go slowly at first. The angle feels different.", art:[[[88,30],"M86 39 L78 72 L66 88 L90 90 M84 46 L100 66"],[[26,84],"M36 86 L80 86 L100 68 L116 86"]]},
+  {n:"Spooning", lvl:1, how:"Both lie on your sides, one behind the other. Slow, close and lazy.", tip:"Perfect for a Sunday morning.", art:[[[32,60],"M42 64 L78 72 L96 64 L116 76 M44 66 L62 78"],[[46,76],"M56 80 L88 86 L104 78 L122 90"]]},
+  {n:"From behind", lvl:2, how:"One partner on hands and knees, the other kneeling behind.", tip:"Dropping to the forearms changes the angle.", art:[[[104,22],"M104 31 V62 L98 92 L126 92 M104 40 L88 58"],[[34,52],"M44 58 L86 58 L86 90 L112 92 M46 60 L44 90"]]},
+  {n:"Lotus", lvl:2, how:"One sits cross-legged and the other sits in their lap facing them, legs wrapped around.", tip:"Rock together rather than rushing. Lots of kissing.", art:[[[58,26],"M58 35 L60 78 L96 86 M58 42 L80 52"],[[84,30],"M82 39 L72 74 L50 82 L36 78 M82 46 L62 46"]]},
+  {n:"Standing embrace", lvl:3, how:"Face to face, standing. A wall helps a lot.", tip:"A step or a pair of heels evens out a height difference.", art:[[[66,14],"M66 23 L68 58 L64 76 L66 94 M68 58 L74 76 L72 94 M66 30 L84 44"],[[92,18],"M92 27 L90 60 L92 78 L90 94 M90 60 L86 78 L88 94 M92 34 L74 40"]]},
+  {n:"Edge of the bed", lvl:2, how:"One lies back at the side of the bed and the other stands or kneels beside it.", tip:"Pillows help get the height right.", art:[[[106,14],"M106 23 L102 58 L104 76 L106 94 M102 58 L96 76 L98 94 M106 32 L114 44"],[[22,52],"M32 56 L82 58 L100 46 L118 40"]], extra:BED},
+  {n:"Scissors", lvl:2, how:"Lie on your sides facing each other with your legs interlaced like scissors.", tip:"Great for grinding and a slow rhythm.", art:[[[20,70],"M30 74 L66 80 L96 66 L126 72"],[[140,70],"M130 74 L94 80 L64 66 L34 72"]]},
+  {n:"Lazy Sunday", lvl:1, how:"One lies face down and the other lies over their back.", tip:"A pillow under the hips helps. Kiss their neck.", art:[[[40,70],"M50 74 L86 78 L136 80 M50 74 L42 88"],[[24,84],"M34 86 L78 86 L134 88"]]},
+  {n:"The throne", lvl:2, how:"One sits on a sturdy chair and the other sits in their lap facing them.", tip:"An armless chair works best.", art:[[[50,24],"M50 33 L54 64 L82 64 L84 94"],[[76,26],"M74 35 L66 62 L46 70 L44 82 M74 42 L56 40"]], extra:CHAIR},
+  {n:"Legs up", lvl:3, how:"One lies back with their legs raised, resting on the shoulders of the other as they kneel.", tip:"Takes flexibility. Stop if anything strains.", art:[[[114,22],"M114 31 L110 64 L94 88 L122 92 M112 40 L102 50"],[[24,84],"M34 86 L74 86 L100 50 L104 30"]]}
+];
+const STREAKS = [
+  {n:"Flirty week", heat:0, days:["Send them a text at lunch saying one thing you find irresistible about them.","Leave a note somewhere they'll find it today. Make it a little cheeky.","Kiss them for a full ten seconds before either of you leaves the house.","Choose an outfit for them to wear on day 7. Keep it secret until then.","Send a photo of something that reminds you of them, with a flirty caption.","Tell them one thing you want to do on day 7. Just one. Leave them wondering.","Date night. Wear the outfit, do the thing you promised, phones away."]},
+  {n:"Spicy week", heat:1, days:["Text them something you'd like to do to them tonight. Then don't. Make them wait.","Wear something under your clothes today that only they know about.","Send them a teasing photo. As much or as little as you like.","Give them a ten-minute massage tonight. Nothing more, however much they ask.","Pick the outfit they'll wear on day 7 and describe it to them in detail.","Write down one fantasy and seal it in an envelope. It gets opened on day 7.","The planned night. Open the envelope, wear the outfit, and take your time."]}
+];
+const DN_STAGES = [["Warm up", ['wyr','lovemap','nhie']], ["Flirt", ['tod','dice','strip']], ["Heat up", ['massage','sensation','slowburn']], ["After dark", ['tease','positions','scene','power']]];
+
+// ---------- settings: heat dial, limits, custom cards ----------
+const maxHeat = () => store.get('maxHeat', 2);
+const capHeat = h => Math.min(h, maxHeat());
+const heatSeg = (id, labels) => `<div class="seg" id="${id}">${labels.map((h, i) => `<button data-h="${i}"${i > maxHeat() ? ' disabled' : ''}>${h}</button>`).join('')}</div>`;
+// One rule per YNM item, same order: [text pattern, card category]. A "no" from either partner hides matching cards everywhere.
+const LIMITS = [[/spank/i],[/spank/i],[/blindfold/i],[/\b(tie|tied|ties|bound|bondage)\b/i,'Bondage'],[/\b(tie|tied|ties|bound|bondage)\b/i,'Bondage'],[/hall pass/i,'Hotwife'],[/hall pass/i,'Cuckold'],[null,'Cuckold'],[null,'Hotwife'],[/threesome|three of you/i],[/swap partners|partner swap|another couple/i],[/opted in/i,'Group'],[/public|outdoors/i],[/dirty talk|dirtiest|filthy/i],[/role[- ]?play/i,'Roleplay'],[/uniform|costume|\bcop\b|officer/i],[/lingerie/i],[null,'Power'],[null,'Power'],[/collar|leash/i,'Collar'],[/\bedg(es|ing)\b|to the edge|denial|finish/i,'Denial'],[/\bwax\b|candle/i],[/\bice\b/i],[/hair pull|pull (their|your) hair/i],[/\bbit(e|es|ing)\b|love bite|hickey|nibbl/i],[null,'Praise'],[/degrad/i],[/\btoys?\b/i],[/\bfilm/i],[/photo|selfie/i],[/touch(ing)? yoursel/i],[/food|strawberr|grape|chocolate|body shot|fridge/i],[/watch(ing)? others/i],[null,'Exhibition']];
+const limits = () => store.get('limits', []);
+const allowed = (text, cat) => limits().every(i => { const [rx, c] = LIMITS[i] || []; return !(c && cat === c) && !(rx && rx.test(text)); });
+const custom = (d, h) => store.get('custom', []).filter(c => c.d === d && (h == null || c.h === h)).map(c => c.t);
 
 // ---------- games registry ----------
 const GAMES = [
-  {id:'tod', name:'Truth or Dare', tag:'Three heat levels. No chickening out.', icon:'devil', run:gTod},
-  {id:'dice', name:'Dirty Dice', tag:'Roll to see what, where and how long.', icon:'dice', run:gDice},
-  {id:'bottle', name:'Spin the Bottle', tag:'Fate picks your victim.', icon:'bottle', run:gBottle},
-  {id:'nhie', name:'Never Have I Ever', tag:'Drink if you have, you dirty thing.', icon:'martini', run:gNhie},
-  {id:'strip', name:'Strip Trivia', tag:'Wrong answer? Lose a layer.', icon:'undies', run:gStrip},
-  {id:'wyr', name:'Would You Rather', tag:'Impossible, filthy choices.', icon:'wyr', run:gWyr},
-  {id:'dirty', name:'Dirty Mind', tag:'Sounds filthy. Answer is innocent.', icon:'dirty', run:gDirty},
-  {id:'kink', name:'Kink Challenges', tag:'Hotwife, cuckold, bondage and more.', icon:'mask', run:gKink, kink:true},
-  {id:'ynm', name:'Yes, No, Maybe', tag:'Find the kinks you both secretly want.', icon:'ynm', run:gYnm, kink:true},
-  {id:'power', name:'Power Play', tag:'One Dom, one sub, a deck of orders.', icon:'collar', run:gPower, kink:true},
-  {id:'hotwife', name:'Hotwife Roller', tag:'Roll W, X, Y, Z. Live with it.', icon:'bull', run:gHotwife, kink:true},
-  {id:'fantasy', name:'Fantasy Builder', tag:'Roll a whole role-play scene.', icon:'clapper', run:gFantasy, kink:true},
-  {id:'tease', name:'Tease Timer', tag:'The phone runs the scene. No mercy.', icon:'stopwatch', run:gTease, kink:true}
+  {id:'tod', name:'Truth or Dare', tag:'Three heat levels. No chickening out.', icon:'devil', run:gTod, sec:'party'},
+  {id:'dice', name:'Dirty Dice', tag:'Roll to see what, where and how long.', icon:'dice', run:gDice, sec:'party'},
+  {id:'bottle', name:'Spin the Bottle', tag:'Fate picks your victim.', icon:'bottle', run:gBottle, sec:'party'},
+  {id:'nhie', name:'Never Have I Ever', tag:'Drink if you have, you dirty thing.', icon:'martini', run:gNhie, sec:'party'},
+  {id:'strip', name:'Strip Trivia', tag:'Wrong answer? Lose a layer.', icon:'undies', run:gStrip, sec:'party'},
+  {id:'wyr', name:'Would You Rather', tag:'Impossible, filthy choices.', icon:'wyr', run:gWyr, sec:'party'},
+  {id:'dirty', name:'Dirty Mind', tag:'Sounds filthy. Answer is innocent.', icon:'dirty', run:gDirty, sec:'party'},
+  {id:'lovemap', name:'Love Map', tag:'How well do you really know them?', icon:'lovemap', run:gLoveMap, sec:'two'},
+  {id:'massage', name:'Massage Deck', tag:'Technique, spot and timer. Just relax.', icon:'drop', run:gMassage, sec:'two'},
+  {id:'sensation', name:'Sensation Roulette', tag:'Feather, ice or silk. Spin for where.', icon:'feather', run:gSensation, sec:'two'},
+  {id:'kink', name:'Kink Challenges', tag:'Hotwife, cuckold, bondage and more.', icon:'mask', run:gKink, kink:true, sec:'kink'},
+  {id:'ynm', name:'Yes, No, Maybe', tag:'Find the kinks you both secretly want.', icon:'ynm', run:gYnm, kink:true, sec:'kink'},
+  {id:'power', name:'Power Play', tag:'One Dom, one sub, a deck of orders.', icon:'collar', run:gPower, kink:true, sec:'kink'},
+  {id:'hotwife', name:'Hotwife Roller', tag:'Roll W, X, Y, Z. Live with it.', icon:'bull', run:gHotwife, kink:true, sec:'kink'},
+  {id:'fantasy', name:'Fantasy Builder', tag:'Roll a whole role-play scene.', icon:'clapper', run:gFantasy, kink:true, sec:'kink'},
+  {id:'tease', name:'Tease Timer', tag:'The phone runs the scene. No mercy.', icon:'stopwatch', run:gTease, kink:true, sec:'kink'},
+  {id:'slowburn', name:'Slow Burn', tag:'Five locked stages. No skipping ahead.', icon:'candle', run:gSlowBurn, kink:true, sec:'kink'},
+  {id:'scene', name:'Scene Generator', tag:'A ready-made role play for tonight.', icon:'script', run:gScene, kink:true, sec:'kink'},
+  {id:'positions', name:'Positions', tag:'A new one every few minutes.', icon:'pos', run:gPositions, kink:true, sec:'kink'},
+  {id:'datenight', name:'Date Night', tag:'A whole evening, planned for you.', icon:'glasses', run:gDateNight, sec:'tools'},
+  {id:'streak', name:'Challenge Streaks', tag:'A dare a day for a week.', icon:'calendar', run:gStreak, sec:'tools'},
+  {id:'mine', name:'My Cards', tag:'Write your own dares and truths.', icon:'pencil', run:gMine, sec:'tools'}
 ];
+const NUM = ['Zero','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen','Twenty','Twenty-one','Twenty-two'];
+const gameCount = () => NUM[GAMES.filter(g => g.sec !== 'tools').length];
 
+// Every game screen gets a swap button (when the game registers one) and a pause button.
+let skipFn = null, pauseHook = null;
+function setSkip(fn) { skipFn = fn; const b = $('#sosSkip'); if (b) b.style.display = fn ? '' : 'none'; }
 function shell(title, inner) {
-  app.innerHTML = `<div class="top"><button class="back" id="back" aria-label="Back">&#8249;</button><h2>${title}</h2></div>` + inner;
+  const dn = store.get('dn', null), id = location.hash.slice(1);
+  const dnBar = dn && dn.plan[dn.i] === id ? `<div class="banner"><span>Date night &middot; stage ${dn.i + 1} of ${dn.plan.length}</span><button id="dnNext">${dn.i + 1 < dn.plan.length ? 'Next stage' : 'Finish'}</button></div>` : '';
+  app.innerHTML = dnBar + `<div class="top"><button class="back" id="back" aria-label="Back">&#8249;</button><h2>${title}</h2></div>` + inner
+    + `<div class="sos"><button id="sosSkip">Swap card</button><button id="sosStop">Pause</button></div>`;
   $('#back').onclick = () => { if (history.length > 1) history.back(); else location.hash = ''; };
+  $('#sosSkip').onclick = () => { if (skipFn) { skipFn(); flash('Swapped'); } };
+  $('#sosStop').onclick = pauseOv;
+  if (dnBar) $('#dnNext').onclick = () => { dn.i++; store.set('dn', dn); location.hash = dn.i < dn.plan.length ? dn.plan[dn.i] : 'datenight'; };
+  setSkip(skipFn);
+}
+function pauseOv() {
+  if (pauseHook) { try { pauseHook(); } catch (e) {} }
+  const d = document.createElement('div'); d.className = 'ov';
+  d.innerHTML = `<div class="card pop" style="max-width:420px;width:100%">${ART.heart}<p style="margin:12px 0 6px;font-weight:700">Paused. Everything stops.</p><p class="small" style="margin:0">Safe word is <b>${sw()}</b>, and nobody has to explain why they called it. Breathe, grab some water and check in with each other. Carry on only if everyone's a clear yes.</p><div class="row" style="width:100%"><button class="btn ghost" id="ovHome">End for tonight</button><button class="btn" id="ovGo">We're good</button></div></div>`;
+  document.body.appendChild(d);
+  d.querySelector('#ovGo').onclick = () => d.remove();
+  d.querySelector('#ovHome').onclick = () => { d.remove(); store.set('dn', null); location.hash = ''; };
 }
 function route() {
   if (cleanup) { try { cleanup(); } catch (e) {} cleanup = null; }
+  skipFn = null; pauseHook = null;
+  document.querySelectorAll('.ov').forEach(o => o.remove());
   window.scrollTo(0, 0);
   if (!store.get('adult', false)) return gate();
   const g = GAMES.find(g => g.id === location.hash.slice(1));
@@ -401,20 +563,24 @@ function route() {
 window.addEventListener('hashchange', route);
 
 function gate() {
-  app.innerHTML = `<div class="gate">${ART.lips}<div class="logo">Naughty Night</div><p>Thirteen raunchy party games for consenting adults.<br>Strictly 18+. Anyone can pass on anything, any time.</p><button class="btn" id="yes">I'm 18+, let's play</button><button class="btn ghost" id="no">Get me out of here</button></div>`;
+  app.innerHTML = `<div class="gate">${ART.lips}<div class="logo">Naughty Night</div><p>${gameCount()} raunchy party games for consenting adults.<br>Strictly 18+. Anyone can pass on anything, any time.</p><button class="btn" id="yes">I'm 18+, let's play</button><button class="btn ghost" id="no">Get me out of here</button></div>`;
   $('#yes').onclick = () => { store.set('adult', true); route(); };
   $('#no').onclick = () => { app.innerHTML = `<div class="gate">${ART.shower}<p>Fair enough. Come back when you're feeling braver.</p></div>`; };
 }
 
 function home() {
   const tile = g => `<div class="tile${g.kink ? ' kinky' : ''}" data-id="${g.id}">${ART[g.icon]}<b>${g.name}</b><span>${g.tag}</span></div>`;
-  app.innerHTML = `<div id="updBanner"></div><div class="logo">Naughty Night</div><div class="sub">Thirteen games. Zero shame. Lights optional.</div>
+  const grid = sec => `<div class="grid">${GAMES.filter(g => g.sec === sec).map(tile).join('')}</div>`;
+  app.innerHTML = `<div id="updBanner"></div><div class="logo">Naughty Night</div><div class="sub">${gameCount()} games. Zero shame. Lights optional.</div>
   <div class="panel"><div class="ptitle">Who's playing</div><div class="chips" id="chips"></div>
   <form class="add" id="addp"><input id="pname" maxlength="16" placeholder="Add a player" autocomplete="off"><button class="btn sm">Add</button></form></div>
-  <div class="grid">${GAMES.filter(g => !g.kink).map(tile).join('')}</div>
-  <h3 class="section">After dark: kink</h3>
-  <div class="grid">${GAMES.filter(g => g.kink).map(tile).join('')}</div>
-  <div class="note">Safe word is always on. Anyone can pass, swap or stop.<br>Enthusiastic yes or it's a no. Consent is the sexiest move.</div>
+  <div class="panel"><div class="ptitle">Heat dial</div><div class="seg" id="maxHeat" style="margin-bottom:6px">${['Mild','Spicy','Wild'].map((h, i) => `<button data-h="${i}">${h}</button>`).join('')}</div>
+  <div class="who" id="heatHelp" style="font-size:13px;line-height:1.5;margin:0"></div><div id="limitsRow"></div></div>
+  ${grid('party')}
+  <h3 class="section">Just the two of you</h3>${grid('two')}
+  <h3 class="section">After dark: kink</h3>${grid('kink')}
+  <h3 class="section">Make it yours</h3>${grid('tools')}
+  <div class="note">Safe word is always on. Anyone can pass, swap or stop.<br>Enthusiastic yes or it's a no. Consent is the sexiest move.<br>Photos from Unsplash.</div>
   ${hasNN() ? `<div class="panel" id="updPanel" style="margin-top:18px"><div class="ptitle">Updates &middot; you're on v${esc(NN.version())}</div>
   <div class="seg" id="updMode"><button data-v="auto">Automatic</button><button data-v="notify">Notify me</button><button data-v="manual">Manual</button></div>
   <div class="seg" id="updCh"><button data-v="stable">Stable</button><button data-v="beta">Beta</button></div>
@@ -427,6 +593,16 @@ function home() {
     $('#updNow').onclick = () => updCheck(false);
   }
   drawUpd();
+  let clearArm = false;
+  const drawHeatDial = () => {
+    const h = maxHeat(), n = limits().length;
+    $('#maxHeat').querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.h === h));
+    $('#heatHelp').textContent = ['Every deck stays at its gentlest level. Good for a first night or a nervous crowd.', 'Decks go up to the middle level. Wild cards stay hidden.', 'Everything unlocked. Each game still lets you pick its level.'][h];
+    $('#limitsRow').innerHTML = n ? `<div class="who" style="font-size:13px;margin:10px 0 0;display:flex;align-items:center;gap:8px;justify-content:center"><span>${n} hard limit${n === 1 ? '' : 's'} from Yes, No, Maybe hidden everywhere.</span><button class="btn sm ghost" id="clr" style="padding:6px 12px;font-size:13px">${clearArm ? 'Tap again to clear' : 'Clear'}</button></div>` : '';
+    const c = $('#clr'); if (c) c.onclick = () => { if (clearArm) { store.set('limits', []); clearArm = false; flash('Limits cleared'); } else clearArm = true; drawHeatDial(); };
+  };
+  drawHeatDial();
+  $('#maxHeat').onclick = e => { const h = e.target.dataset.h; if (h != null) { store.set('maxHeat', +h); drawHeatDial(); } };
   const drawChips = () => {
     $('#chips').innerHTML = players.map((p, i) => `<span class="chip">${esc(p)}<i data-del="${i}">&times;</i></span>`).join('') || '<span style="color:var(--muted);font-size:14px">Add at least two players</span>';
   };
@@ -439,9 +615,9 @@ const plist = () => players.length ? players : ['You'];
 
 // 1. Truth or Dare
 function gTod() {
-  let heat = store.get('heat', 1), turn = 0;
-  const decks = [0,1,2].map(i => ({t: deck(TOD.truth[i]), d: deck(TOD.dare[i])}));
-  shell('Truth or Dare', `<div class="seg" id="heat">${['Flirty','Spicy','Filthy'].map((h, i) => `<button data-h="${i}">${h}</button>`).join('')}</div>
+  let heat = capHeat(store.get('heat', 1)), turn = 0, last = null;
+  const decks = [0,1,2].map(i => ({t: deck(TOD.truth[i].concat(custom('truth', i)).filter(x => allowed(x))), d: deck(TOD.dare[i].concat(custom('dare', i)).filter(x => allowed(x)))}));
+  shell('Truth or Dare', `${heatSeg('heat', ['Flirty','Spicy','Filthy'])}
   <div class="who" id="who"></div>
   <div class="card" id="card">${ART.devil}<p style="margin:10px 0 0">Truth or dare, gorgeous?</p></div>
   <div class="row"><button class="btn" id="t">Truth</button><button class="btn hot" id="d">Dare</button></div>
@@ -452,12 +628,14 @@ function gTod() {
   drawHeat(); drawWho();
   $('#heat').onclick = e => { if (e.target.dataset.h) { heat = +e.target.dataset.h; store.set('heat', heat); drawHeat(); } };
   const show = kind => {
-    const txt = kind === 't' ? decks[heat].t() : decks[heat].d();
+    last = kind;
+    const txt = (kind === 't' ? decks[heat].t() : decks[heat].d()) || 'Nothing left at this level after your limits. Try another heat.';
     const c = $('#card'); c.classList.remove('pop'); void c.offsetWidth; c.classList.add('pop');
     c.innerHTML = `<span class="tag">${kind === 't' ? 'Truth' : 'Dare'} &middot; ${['Flirty','Spicy','Filthy'][heat]}</span><p style="margin:0">${esc(txt)}</p>`;
     beep(kind === 't' ? 660 : 440, .2, 'triangle');
   };
   $('#t').onclick = () => show('t'); $('#d').onclick = () => show('d');
+  setSkip(() => show(last || pick(['t', 'd'])));
   $('#next').onclick = () => { turn++; drawWho(); const c = $('#card'); c.innerHTML = `${ART.devil}<p style="margin:10px 0 0">Truth or dare, gorgeous?</p>`; c.classList.remove('pop'); void c.offsetWidth; c.classList.add('pop'); };
 }
 
@@ -467,20 +645,22 @@ function gDice() {
   shell('Dirty Dice', `<div class="who" id="who"></div>
   <div class="dice"><div class="die" id="d1">?</div><div class="die p" id="d2">?</div><div class="die g" id="d3">?</div></div>
   <div class="card" id="res" style="min-height:120px;font-size:19px">Roll the dice and do what they say.</div>
-  <div class="row"><button class="btn" id="roll">Roll &#127922;</button></div>
+  <div class="row"><button class="btn" id="roll">Roll the dice</button></div>
   <div class="note">Pink die: what. White die: where. Gold die: how long. Partner can veto.</div>`);
   const ps = () => plist();
+  const acts = DICE_ACT.filter(a => allowed(a)), A = acts.length ? acts : ['Kiss'];
   const drawWho = () => { const p = ps(); const me = p[turn % p.length]; const them = p.length > 1 ? p[(turn + 1) % p.length] : 'yourself'; $('#who').innerHTML = `<b>${esc(me)}</b> &rarr; <b>${esc(them)}</b>`; };
   drawWho();
+  setSkip(() => $('#roll').click());
   let busy = false;
   $('#roll').onclick = () => {
     if (busy) return; busy = true;
     const ds = ['#d1','#d2','#d3'].map(s => $(s));
     ds.forEach(d => d.classList.add('roll'));
-    const iv = setInterval(() => { $('#d2').textContent = pick(DICE_ACT); $('#d1').textContent = pick(DICE_SPOT); $('#d3').textContent = pick(DICE_TIME); beep(300 + rnd(400), .04, 'square', .03); }, 80);
+    const iv = setInterval(() => { $("#d2").textContent = pick(A); $('#d1').textContent = pick(DICE_SPOT); $('#d3').textContent = pick(DICE_TIME); beep(300 + rnd(400), .04, 'square', .03); }, 80);
     setTimeout(() => {
       clearInterval(iv); ds.forEach(d => d.classList.remove('roll'));
-      const a = pick(DICE_ACT), s = pick(DICE_SPOT), t = pick(DICE_TIME);
+      const a = pick(A), s = pick(DICE_SPOT), t = pick(DICE_TIME);
       $('#d2').textContent = a; $('#d1').textContent = s; $('#d3').textContent = t;
       const p = ps(); const them = p.length > 1 ? p[(turn + 1) % p.length] : 'yourself';
       const r = $('#res'); r.classList.remove('pop'); void r.offsetWidth; r.classList.add('pop');
@@ -522,7 +702,7 @@ function gBottle() {
       $('#seat' + target).classList.add('win'); beep(990, .4, 'triangle'); buzz(100);
       const sp = p[spinner % p.length];
       const r = $('#res'); r.classList.remove('pop'); void r.offsetWidth; r.classList.add('pop');
-      r.innerHTML = `<p style="margin:0"><b>${esc(p[target])}</b> ${pick(BOTTLE_ACTS).replace('{s}', '<b>' + esc(sp) + '</b>')}.</p><p style="margin:8px 0 0;font-size:14px;color:var(--muted)">${esc(p[target])} spins next.</p>`;
+      r.innerHTML = `<p style="margin:0"><b>${esc(p[target])}</b> ${pick(BOTTLE_ACTS.filter(x => allowed(x)).concat(BOTTLE_ACTS.filter(x => allowed(x)).length ? [] : ["kisses {s}"])).replace('{s}', '<b>' + esc(sp) + '</b>')}.</p><p style="margin:8px 0 0;font-size:14px;color:var(--muted)">${esc(p[target])} spins next.</p>`;
       spinner = target;
     }, 3700);
     cleanup = () => clearInterval(iv);
@@ -540,6 +720,7 @@ function gNhie() {
     c.innerHTML = `<span class="tag">Card ${n}</span><p style="margin:0;font-size:15px;color:var(--muted)">Never have I ever...</p><p style="margin:8px 0 0;font-size:24px;font-weight:700">${esc(next())}</p>`;
     $('#cnt').textContent = 'Guilty? Drink, and tell the story.'; beep(520, .15, 'triangle');
   };
+  setSkip(() => $('#go').click());
 }
 
 // 5. Strip Trivia
@@ -584,7 +765,7 @@ function gWyr() {
     $('#box').innerHTML = `<div class="wyr pop" id="w"><button class="a" data-s="a">${esc(a)}<span class="pct">${pa}%</span></button><div class="or">or</div><button class="b" data-s="b">${esc(b)}<span class="pct">${100 - pa}%</span></button></div><div class="who" style="margin-top:10px">Everyone picks. The minority drinks.</div>`;
     $('#w').onclick = e => { const btn = e.target.closest('button'); if (!btn || $('#w').classList.contains('done')) return; btn.classList.add('pick'); $('#w').classList.add('done'); beep(700, .15, 'triangle'); };
   };
-  $('#skip').onclick = show; show();
+  $('#skip').onclick = show; setSkip(show); show();
 }
 
 // 9. Dirty Mind
@@ -605,7 +786,7 @@ function gDirty() {
       $('#f').onclick = () => { filthy++; tally(); flash('Filthy'); show(); };
     };
   };
-  tally(); show();
+  tally(); setSkip(show); show();
 }
 
 // ---------- kink games ----------
@@ -621,16 +802,16 @@ function kinkGate(title, go) {
 }
 
 function gKink() { kinkGate('Kink Challenges', () => {
-  let heat = store.get('kheat', 0), cat = 'All', turn = 0;
+  let heat = capHeat(store.get('kheat', 0)), cat = 'All', turn = 0;
   const decks = {};
   const draw = () => {
-    const key = heat + cat, pool = KINK[heat].filter(c => cat === 'All' || c[0] === cat);
+    const key = heat + cat, pool = KINK[heat].concat(custom('kink', heat).map(t => ['Custom', t])).filter(c => (cat === 'All' || c[0] === cat) && allowed(c[1], c[0]));
     if (!pool.length) return null;
     if (!decks[key]) decks[key] = deck(pool);
     return decks[key]();
   };
-  shell('Kink Challenges', `<div class="seg" id="heat">${['Tease','Bold','Wild'].map((h, i) => `<button data-h="${i}">${h}</button>`).join('')}</div>
-  <div class="chiprow" id="cats">${KINK_CATS.map(c => `<button data-c="${c}">${c}</button>`).join('')}</div>
+  shell('Kink Challenges', `${heatSeg('heat', ['Tease','Bold','Wild'])}
+  <div class="chiprow" id="cats">${KINK_CATS.concat(custom('kink').length ? ['Custom'] : []).map(c => `<button data-c="${c}">${c}</button>`).join('')}</div>
   <div class="who" id="who"></div>
   <div class="card" id="card">${ART.mask}<p style="margin:10px 0 0">Draw a challenge. Hard no? Veto it.</p></div>
   <div class="row"><button class="btn hot" id="draw">Draw a challenge</button></div>
@@ -651,7 +832,7 @@ function gKink() { kinkGate('Kink Challenges', () => {
   marks();
   $('#heat').onclick = e => { if (e.target.dataset.h) { heat = +e.target.dataset.h; store.set('kheat', heat); marks(); } };
   $('#cats').onclick = e => { if (e.target.dataset.c) { cat = e.target.dataset.c; marks(); } };
-  $('#draw').onclick = show;
+  $('#draw').onclick = show; setSkip(show);
   $('#veto').onclick = () => { flash('Vetoed. No questions.'); show(); };
   $('#next').onclick = () => { turn++; marks(); };
 }); }
@@ -675,10 +856,12 @@ function gYnm() { kinkGate('Yes, No, Maybe', () => {
     const both = [], talk = [];
     YNM.forEach((k, j) => { const x = ans[0][j], y = ans[1][j]; if (x === 2 && y === 2) both.push(k); else if (x > 0 && y > 0) talk.push(k); });
     const li = a => a.map(k => `<li>${esc(k)}</li>`).join('');
+    const no = YNM.map((k, j) => ans[0][j] === 0 || ans[1][j] === 0 ? j : -1).filter(j => j >= 0);
+    store.set('limits', no);
     shell('Yes, No, Maybe', `<div class="card pop" style="min-height:0">${ART.heart}<p style="margin:10px 0 0;font-weight:700">${esc(names[0])} &amp; ${esc(names[1])}: ${both.length} perfect match${both.length === 1 ? '' : 'es'}</p></div>
     <h3 class="section" style="font-size:20px">You both said yes</h3><ul class="list">${li(both) || '<li>Nothing yet. Start with the maybes.</li>'}</ul>
     <h3 class="section" style="font-size:20px">Worth a conversation</h3><ul class="list">${li(talk) || '<li>Nothing here.</li>'}</ul>
-    <div class="note">Anything either of you said no to stays secret.</div>
+    <div class="note">Anything either of you said no to stays secret. ${no.length ? `Those ${no.length} hard limit${no.length === 1 ? ' is' : 's are'} now hidden from every deck in the app, without showing whose they were.` : ''}</div>
     <div class="row"><button class="btn ghost" id="again">Start over</button></div>`);
     $('#again').onclick = gYnm;
   };
@@ -690,6 +873,7 @@ function gPower() { kinkGate('Power Play', () => {
   let dom = 0, sub = 1, len = 10, iv = null;
   cleanup = () => clearInterval(iv);
   const setup = () => {
+    setSkip(null);
     const opts = id => `<div class="chiprow" id="${id}">${p.map((n, i) => `<button data-i="${i}">${esc(n)}</button>`).join('')}</div>`;
     shell('Power Play', `<div class="card pop" style="min-height:0">${ART.collar}<p style="margin:10px 0 0;font-size:16px;color:var(--muted);line-height:1.5">One Dom, one sub. The sub can call yellow to slow down, or the safe word to stop, at any time.</p></div>
     <div class="ptitle" style="margin-top:16px">In charge</div>${opts('dom')}<div class="ptitle">Obeying</div>${opts('sub')}
@@ -706,11 +890,13 @@ function gPower() { kinkGate('Power Play', () => {
     $('#sub').onclick = e => { if (e.target.dataset.i) { sub = +e.target.dataset.i; marks(); } };
     $('#len').onclick = e => { if (e.target.dataset.n) { len = +e.target.dataset.n; marks(); } };
     $('#rand').onclick = () => { dom = rnd(p.length); do { sub = rnd(p.length); } while (sub === dom); marks(); };
-    $('#start').onclick = () => scene(shuffle(POWER).slice(0, len));
+    $('#start').onclick = () => scene(shuffle(POWER.concat(custom('power').map(t => [t, 0])).filter(c => allowed(c[0], 'Power'))).slice(0, len));
   };
   const D = () => esc(p[dom]), Sb = () => esc(p[sub]);
   const scene = cards => {
     let k = 0;
+    if (!cards.length) return aftercare('Nothing to play. Your limits from Yes, No, Maybe rule this deck out.');
+    setSkip(() => { k++; card(); });
     const card = () => {
       clearInterval(iv);
       if (k >= cards.length) return aftercare('Scene complete.');
@@ -739,7 +925,7 @@ function gPower() { kinkGate('Power Play', () => {
     card();
   };
   const aftercare = why => {
-    clearInterval(iv);
+    clearInterval(iv); setSkip(null);
     shell('Power Play', `<div class="card pop">${ART.heart}<p style="margin:12px 0 6px;font-weight:700">${why}</p><p style="margin:0;font-size:16px;color:var(--muted);line-height:1.5">Aftercare time. Water, a blanket, a cuddle. ${D()}, check in with ${Sb()}. Then tell each other the best bit.</p></div>
     <div class="row"><button class="btn" id="again">New scene</button></div>`);
     $('#again').onclick = setup;
@@ -828,14 +1014,14 @@ function gFantasy() { kinkGate('Fantasy Builder', () => {
 
 function gTease() { kinkGate('Tease Timer', () => {
   const p = plist().length >= 2 ? plist() : ['You', 'Them'];
-  let teaser = 0, teased = 1, heat = store.get('ttHeat', 0), mins = 10, iv = null;
+  let teaser = 0, teased = 1, heat = capHeat(store.get('ttHeat', 0)), mins = 10, iv = null;
   cleanup = () => clearInterval(iv);
   const setup = () => {
-    clearInterval(iv);
+    clearInterval(iv); setSkip(null); pauseHook = null;
     const opts = id => `<div class="chiprow" id="${id}">${p.map((n, i) => `<button data-i="${i}">${esc(n)}</button>`).join('')}</div>`;
     shell('Tease Timer', `<div class="card pop" style="min-height:0">${ART.stopwatch}<p style="margin:10px 0 0;font-size:16px;color:var(--muted);line-height:1.5">The phone calls every move. When the alarm goes, you switch, straight away. Lay it face up where you can both see it.</p></div>
     <div class="ptitle" style="margin-top:16px">Teaser</div>${opts('ter')}<div class="ptitle">Being teased</div>${opts('ted')}
-    <div class="ptitle">Intensity</div><div class="seg" id="heat">${['Slow burn', 'Heated', 'Merciless'].map((h, i) => `<button data-h="${i}">${h}</button>`).join('')}</div>
+    <div class="ptitle">Intensity</div>${heatSeg('heat', ['Slow burn', 'Heated', 'Merciless'])}
     <div class="ptitle">Length</div><div class="seg" id="len">${[5, 10, 15].map(n => `<button data-n="${n}">${n} min</button>`).join('')}</div>
     <div class="row"><button class="btn hot" id="start">Start the clock</button></div>`);
     const marks = () => {
@@ -854,7 +1040,9 @@ function gTease() { kinkGate('Tease Timer', () => {
   };
   const run = () => {
     const steps = []; let total = 0, pool = [];
-    while (total < mins * 60) { if (!pool.length) pool = shuffle(TEASE[heat]); const s = pool.pop(); steps.push(s); total += s[1]; }
+    const base = TEASE[heat].concat(custom('tease', heat).map(t => [t, 60])).filter(s => allowed(s[0]));
+    if (!base.length) return finish('Nothing left at this intensity after your limits.');
+    while (total < mins * 60) { if (!pool.length) pool = shuffle(base); const s = pool.pop(); steps.push(s); total += s[1]; }
     let k = -1, end = 0, left = 0, paused = false;
     const fmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
     shell('Tease Timer', `<div class="who"><b>${esc(p[teaser])}</b> teases <b>${esc(p[teased])}</b> &middot; <span id="stepNo"></span></div>
@@ -889,17 +1077,362 @@ function gTease() { kinkGate('Tease Timer', () => {
     };
     $('#skip').onclick = () => { paused = false; $('#pause').textContent = 'Pause'; step(); };
     $('#stop').onclick = () => finish('Safe word called. Everything stops, no questions asked.');
+    setSkip(() => $('#skip').click());
+    pauseHook = () => { if (!paused) $('#pause').click(); };
     step(); tick();
     iv = setInterval(tick, 250);
   };
   const finish = why => {
-    clearInterval(iv);
+    clearInterval(iv); setSkip(null); pauseHook = null;
     shell('Tease Timer', `<div class="card pop">${ART.heart}<p style="margin:12px 0 6px;font-weight:700">${why}</p><p style="margin:0;font-size:16px;color:var(--muted);line-height:1.5">What happens next is up to you two. Water, a cuddle, and tell each other the best bit.</p></div>
     <div class="row"><button class="btn" id="again">Go again</button></div>`);
     $('#again').onclick = setup;
   };
   setup();
 }); }
+
+// ---------- couples games ----------
+const two = (a, b) => plist().length >= 2 ? plist() : [a, b];
+const photo = name => `<img class="ph" src="img/${name}.jpg" alt="">`;
+
+function gLoveMap() {
+  const names = two('Partner A', 'Partner B'), rounds = 10;
+  const next = deck(LOVEMAP), fq = deck(LM_FORFEIT);
+  let turn = 0, score = [0, 0];
+  shell('Love Map', `<div class="who" id="sc"></div><div class="card" id="card"></div><div id="ctl"></div>
+  <div class="note">The person being asked about is the judge. Be honest, and be kind.</div>`);
+  const me = () => turn % 2, them = () => 1 - turn % 2, nm = s => s.replace(/\{n\}/g, names[them()]);
+  const drawSc = () => $('#sc').innerHTML = `${esc(names[0])} <b>${score[0]}</b> &nbsp;&middot;&nbsp; ${esc(names[1])} <b>${score[1]}</b> &nbsp;&middot;&nbsp; round ${Math.floor(turn / 2) + 1} of ${rounds}`;
+  const ask = () => {
+    if (turn >= rounds * 2) return end();
+    drawSc();
+    const c = $('#card'); pop(c);
+    c.innerHTML = `<span class="tag">${esc(names[me()])} answers</span><p style="margin:0">${esc(nm(next()))}</p>`;
+    $('#ctl').innerHTML = `<div class="who" style="margin-top:12px">${esc(names[them()])}, did they get it right?</div><div class="row"><button class="btn" id="y">Spot on</button><button class="btn hot" id="n">Not even close</button></div>`;
+    $('#y').onclick = () => { score[me()]++; flash('Point'); beep(880, .2, 'triangle'); turn++; ask(); };
+    $('#n').onclick = () => { buzz(80); beep(200, .3, 'sawtooth'); forfeit(); };
+    setSkip(ask);
+  };
+  const forfeit = () => {
+    const c = $('#card'); pop(c);
+    c.innerHTML = `<span class="tag">Forfeit &middot; ${esc(names[me()])}</span><p style="margin:0">${esc(nm(fq()))}</p>`;
+    $('#ctl').innerHTML = `<div class="row"><button class="btn" id="ok">Done</button></div>`;
+    $('#ok').onclick = () => { turn++; ask(); };
+    setSkip(forfeit);
+  };
+  const end = () => {
+    setSkip(null);
+    const w = score[0] === score[1] ? -1 : score[0] > score[1] ? 0 : 1;
+    shell('Love Map', `<div class="card pop">${ART.lovemap}<p style="margin:12px 0 6px;font-weight:700">${w < 0 ? `A draw at ${score[0]} each.` : `${esc(names[w])} wins, ${score[w]} to ${score[1 - w]}.`}</p><p class="small" style="margin:0">${w < 0 ? 'You know each other equally well. Kiss and call it even.' : `${esc(names[w])} picks one thing ${esc(names[1 - w])} has to do for them tonight.`}</p></div>
+    <div class="row"><button class="btn" id="again">Play again</button></div>`);
+    $('#again').onclick = gLoveMap;
+  };
+  ask();
+}
+
+function gMassage() {
+  const p = two('You', 'Them');
+  let giver = 0, iv = null;
+  cleanup = () => clearInterval(iv);
+  shell('Massage Deck', `<div class="who" id="who"></div>
+  <div class="card" id="card">${ART.drop}<p style="margin:10px 0 0">Grab some oil and a towel, then draw a card.</p></div>
+  <div class="row"><button class="btn" id="draw">Draw a card</button></div>
+  <div class="row"><button class="btn ghost" id="swap">Swap who gives</button></div>
+  <div class="note">Pressure is the receiver's call. Ask once, early, and listen.</div>`);
+  const drawWho = () => $('#who').innerHTML = `<b>${esc(p[giver])}</b> gives, <b>${esc(p[(giver + 1) % p.length])}</b> receives`;
+  const show = () => {
+    clearInterval(iv);
+    const [name, img, how] = pick(MASSAGE);
+    const area = name === 'Scalp rub' ? 'the scalp' : pick(M_AREAS.filter(a => a[1] <= maxHeat()))[0];
+    const secs = pick([60, 90, 120, 180]);
+    const c = $('#card'); pop(c);
+    c.innerHTML = `${photo(img)}<span class="tag" style="top:162px">${esc(name)}</span><p style="margin:6px 0 8px;font-weight:700">${esc(name)} on ${esc(area)}</p><p class="small" style="margin:0">${esc(how)}</p><div class="timer" id="tm">${mmss(secs)}</div><p class="small" style="margin:0;font-size:13px">Tip: ${esc(pick(M_TIPS))}</p>`;
+    $('#draw').textContent = 'Start the timer';
+    $('#draw').onclick = () => { $('#draw').textContent = 'Next card'; $('#draw').onclick = show; iv = countdown(secs, $('#tm'), () => flash('Next card')); };
+    beep(520, .15, 'triangle');
+  };
+  drawWho();
+  $('#draw').onclick = show;
+  $('#swap').onclick = () => { giver = (giver + 1) % p.length; drawWho(); };
+  setSkip(show);
+}
+
+function gSensation() {
+  const p = two('You', 'Them');
+  let turn = 0, blind = store.get('sensBlind', false), score = [0, 0], iv = null, busy = false;
+  cleanup = () => clearInterval(iv);
+  const sens = () => { const s = SENSATIONS.filter(x => x[3] <= maxHeat() && allowed(x[0] + ' ' + x[2])); return s.length ? s : [SENSATIONS[0]]; };
+  const zones = () => ZONES.filter(z => z[1] <= maxHeat()).map(z => z[0]);
+  shell('Sensation Roulette', `<div class="seg" id="mode"><button data-m="0">Eyes open</button><button data-m="1">Blindfold guess</button></div>
+  <div class="who" id="who"></div>
+  <div class="dice" style="margin:8px 0 14px"><div class="die" id="dz" style="width:48%;font-size:15px">Where?</div><div class="die p" id="ds" style="width:48%;font-size:15px">What?</div></div>
+  <div class="card" id="card" style="min-height:140px">Spin to see what goes where.</div>
+  <div id="ctl"></div>
+  <div class="row"><button class="btn" id="spin">Spin</button></div>`);
+  const giver = () => turn % p.length, getter = () => (turn + 1) % p.length;
+  const drawWho = () => {
+    $('#mode').querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.m === +blind));
+    $('#who').innerHTML = `<b>${esc(p[giver()])}</b> gives, <b>${esc(p[getter()])}</b> receives` + (blind ? ` &middot; guessed right: ${esc(p[0])} ${score[0]}, ${esc(p[1])} ${score[1]}` : '');
+  };
+  const spin = () => {
+    if (busy) return; busy = true; clearInterval(iv);
+    const S2 = sens(), Z = zones(), s = pick(S2), z = pick(Z);
+    $('#ctl').innerHTML = '';
+    iv = setInterval(() => { $('#dz').textContent = pick(Z); $('#ds').textContent = pick(S2)[0]; beep(300 + rnd(400), .04, 'square', .03); }, 80);
+    setTimeout(() => {
+      clearInterval(iv); busy = false;
+      $('#dz').textContent = z; $('#ds').textContent = blind ? 'Secret' : s[0];
+      const c = $('#card'); pop(c);
+      c.innerHTML = `${photo(s[1])}<span class="tag" style="top:162px">${blind ? 'Giver only' : esc(s[0])}</span><p style="margin:6px 0 8px;font-weight:700">${esc(s[0])} on ${esc(z)}</p><p class="small" style="margin:0">${esc(s[2])}</p><div class="timer" id="tm">0:45</div>`;
+      if (blind) {
+        $('#ctl').innerHTML = `<div class="who" style="margin-top:12px">${esc(p[getter()])}, eyes closed. Guess what it is.</div><div class="row"><button class="btn" id="g">Guessed it</button><button class="btn hot" id="m">Missed</button></div>`;
+        $('#g').onclick = () => { score[getter()]++; flash('Correct'); done(); };
+        $('#m').onclick = () => { flash('Nope'); done(); };
+      } else {
+        $('#ctl').innerHTML = `<div class="row"><button class="btn ghost" id="go">Start 45 seconds</button></div>`;
+        $('#go').onclick = () => { $('#go').disabled = true; iv = countdown(45, $('#tm'), done); };
+      }
+      beep(880, .3, 'triangle'); buzz(60);
+    }, 1200);
+  };
+  const done = () => { clearInterval(iv); turn++; drawWho(); $('#ctl').innerHTML = ''; };
+  $('#mode').onclick = e => { const m = e.target.dataset.m; if (m != null) { blind = m === '1'; store.set('sensBlind', blind); drawWho(); } };
+  $('#spin').onclick = spin;
+  setSkip(spin);
+  drawWho();
+}
+
+function gSlowBurn() { kinkGate('Slow Burn', () => {
+  const p = two('You', 'Them');
+  let heat = capHeat(store.get('sbHeat', 0)), mins = 20, iv = null;
+  cleanup = () => clearInterval(iv);
+  const setup = () => {
+    clearInterval(iv); setSkip(null); pauseHook = null;
+    shell('Slow Burn', `<div class="card pop" style="min-height:0">${photo('slowburn')}<p class="small" style="margin:0">Five stages, each with its own rules. The next one stays locked until the timer runs out, so there's no skipping ahead. Pause or call the safe word whenever you need to.</p></div>
+    <div class="ptitle" style="margin-top:16px">Heat</div>${heatSeg('heat', ['Gentle', 'Heated', 'Wild'])}
+    <div class="ptitle">Length</div><div class="seg" id="len">${[20, 30, 40].map(n => `<button data-n="${n}">${n} min</button>`).join('')}</div>
+    <div class="row"><button class="btn hot" id="start">Light the candle</button></div>`);
+    const marks = () => {
+      $('#heat').querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.h === heat));
+      $('#len').querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.n === mins));
+    };
+    marks();
+    $('#heat').onclick = e => { if (e.target.dataset.h) { heat = +e.target.dataset.h; store.set('sbHeat', heat); marks(); } };
+    $('#len').onclick = e => { if (e.target.dataset.n) { mins = +e.target.dataset.n; marks(); } };
+    $('#start').onclick = run;
+  };
+  const run = () => {
+    const stages = SLOWBURN[heat], per = mins * 12; // seconds per stage: mins * 60 / 5
+    let k = 0, end = 0, left = 0, paused = false, prompts = null;
+    shell('Slow Burn', `<div class="meter"><div id="prog" style="width:0"></div></div><div class="who" id="st"></div>
+    <div class="card"><span class="tag" id="tag"></span><p id="rule" style="margin:0 0 12px;font-weight:700"></p><p id="pr" class="small" style="margin:0;font-size:17px"></p><div class="timer" id="tm"></div></div>
+    <div class="row"><button class="btn" id="next" disabled></button></div>
+    <div class="row"><button class="btn ghost" id="pause">Pause</button><button class="btn hot" id="stop">Safe word: stop</button></div>`);
+    const prompt = () => { $('#pr').textContent = prompts() || ''; };
+    const stage = () => {
+      const [name, rule, ps, alt] = stages[k];
+      prompts = deck(ps.filter(x => allowed(x)));
+      $('#tag').textContent = 'Stage ' + (k + 1) + ' · ' + name;
+      $('#rule').textContent = allowed(rule) ? rule : (alt || 'Take this stage at your own pace, within your limits.');
+      $('#st').innerHTML = `<b>${esc(p[0])}</b> and <b>${esc(p[1])}</b> &middot; stage ${k + 1} of 5`;
+      $('#prog').style.width = (k / 5 * 100) + '%';
+      left = per; end = Date.now() + per * 1000; paused = false; $('#pause').textContent = 'Pause';
+      prompt(); lockNext();
+      pop($('#rule').parentNode); beep(660, .3, 'triangle'); buzz([80, 60, 80]);
+    };
+    const lockNext = () => {
+      const b = $('#next'), last = k === 4;
+      if (left > 0 && !last) { b.disabled = true; b.innerHTML = `<span class="ico">${ART.lock}</span> Stage ${k + 2} unlocks in ${mmss(left)}`; }
+      else { b.disabled = false; b.textContent = last ? 'Finish' : `Unlock stage ${k + 2}`; }
+    };
+    const tick = () => {
+      if (paused) return;
+      const was = left;
+      left = Math.max(0, Math.ceil((end - Date.now()) / 1000));
+      $('#tm').textContent = mmss(left);
+      if (was > 0 && left === 0) { beep(880, .5, 'triangle'); buzz([120, 60, 120]); flash(k < 4 ? 'Unlocked' : 'Time'); }
+      lockNext();
+    };
+    $('#next').onclick = () => { if (k >= 4) return finish('Time. All five stages done.'); k++; stage(); };
+    $('#pause').onclick = () => { paused = !paused; if (!paused) end = Date.now() + left * 1000; $('#pause').textContent = paused ? 'Resume' : 'Pause'; };
+    $('#stop').onclick = () => finish('Safe word called. Everything stops, no questions asked.');
+    setSkip(prompt);
+    pauseHook = () => { if (!paused) $('#pause').click(); };
+    stage(); tick();
+    iv = setInterval(tick, 250);
+  };
+  const finish = why => {
+    clearInterval(iv); setSkip(null); pauseHook = null;
+    shell('Slow Burn', `<div class="card pop">${ART.heart}<p style="margin:12px 0 6px;font-weight:700">${why}</p><p class="small" style="margin:0">Water, a blanket, a cuddle. Tell each other which stage was the hardest to wait through.</p></div>
+    <div class="row"><button class="btn" id="again">Go again</button></div>`);
+    $('#again').onclick = setup;
+  };
+  setup();
+}); }
+
+function gScene() { kinkGate('Scene Generator', () => {
+  const p = two('You', 'Them');
+  const pool = SCENES.filter(s => allowed([s.set, s.a, s.b, s.tw, s.line].concat(s.beats).join(' '), 'Roleplay'));
+  const next = deck(pool);
+  let cur = null, flip = rnd(2) === 1;
+  shell('Scene Generator', `<div id="out"></div>
+  <div class="row"><button class="btn ghost" id="swap">Swap roles</button><button class="btn gold" id="new">New scene</button></div>
+  <div class="note">Agree the scene and your limits before you start. Either of you can break character at any time.</div>`);
+  const draw = () => {
+    if (!cur) { $('#out').innerHTML = `<div class="card pop"><p style="margin:0">No scenes left after your limits.</p></div>`; return; }
+    const [x, y] = flip ? [p[1], p[0]] : [p[0], p[1]];
+    $('#out').innerHTML = `<div class="card pop" style="min-height:0">${photo(cur.img)}<span class="tag" style="top:162px">Tonight's scene</span><p style="margin:6px 0 4px;font-weight:800;font-size:24px">${esc(cur.t)}</p><p class="small" style="margin:0">${esc(cur.set)}</p></div>
+    <div class="panel pop" style="margin-top:12px"><div class="ptitle">Cast</div><p style="margin:0 0 6px"><b>${esc(x)}</b> plays ${esc(cur.a.toLowerCase())}.</p><p style="margin:0"><b>${esc(y)}</b> plays ${esc(cur.b.toLowerCase())}.</p></div>
+    <div class="panel pop"><div class="ptitle">The twist</div><p style="margin:0">${esc(cur.tw)}</p></div>
+    <div class="panel pop"><div class="ptitle">Opening line, ${esc(x)}</div><p class="line" style="margin:0;font-size:20px">"${esc(cur.line)}"</p></div>
+    <div class="panel pop"><div class="ptitle">How it plays out</div><ul class="list" style="margin:0">${cur.beats.map(b => `<li>${esc(b)}</li>`).join('')}</ul></div>`;
+  };
+  const roll = () => { cur = next(); flip = rnd(2) === 1; draw(); beep(660, .25, 'triangle'); };
+  $('#new').onclick = roll;
+  $('#swap').onclick = () => { flip = !flip; draw(); };
+  setSkip(roll);
+  roll();
+}); }
+
+function gPositions() { kinkGate('Positions', () => {
+  let filt = 'all', secs = store.get('posSecs', 120), iv = null, cur = null, running = false;
+  const favs = () => store.get('favPos', []);
+  cleanup = () => clearInterval(iv);
+  const decks = {};
+  const pool = () => POSITIONS.filter(x => x.lvl <= maxHeat() + 1 && (filt === 'all' || favs().includes(x.n)) && allowed(x.how));
+  shell('Positions', `<div class="seg" id="filt"><button data-f="all">All</button><button data-f="fav">Favourites</button></div>
+  <div class="seg" id="len">${[60, 120, 180].map(n => `<button data-n="${n}">${n / 60} min each</button>`).join('')}</div>
+  <div class="card" id="card">${ART.pos}<p style="margin:10px 0 0">Draw a position, or start the clock and let the phone move you on.</p></div>
+  <div class="row"><button class="btn ghost" id="fav">Favourite</button><button class="btn" id="draw">Draw</button></div>
+  <div class="row"><button class="btn hot" id="run">Start the clock</button></div>
+  <div class="note">Anything uncomfortable, skip it. Heat dial caps the difficulty.</div>`);
+  const marks = () => {
+    $('#filt').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.f === filt));
+    $('#len').querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.n === secs));
+    $('#fav').innerHTML = cur && favs().includes(cur.n) ? `<span class="ico">${ART.heart}</span> Saved` : 'Favourite';
+    $('#run').textContent = running ? 'Stop the clock' : 'Start the clock';
+  };
+  const show = () => {
+    clearInterval(iv);
+    const key = filt + maxHeat() + limits().join();
+    if (!decks[key]) decks[key] = deck(pool());
+    cur = decks[key]();
+    const c = $('#card'); pop(c);
+    if (!cur) { c.innerHTML = `<p style="margin:0">${filt === 'fav' ? 'No favourites yet. Tap Favourite on the ones you love.' : 'Nothing at this heat level.'}</p>`; running = false; marks(); return; }
+    c.innerHTML = `${POSART(cur.art[0], cur.art[1], cur.extra)}<span class="tag">${['', 'Easy', 'Medium', 'Advanced'][cur.lvl]}</span><p style="margin:0 0 6px;font-weight:800;font-size:24px">${esc(cur.n)}</p><p class="small" style="margin:0 0 6px">${esc(cur.how)}</p><p class="small" style="margin:0;font-size:13px">Tip: ${esc(cur.tip)}</p>${running ? `<div class="timer" id="tm"></div>` : ''}`;
+    if (running) iv = countdown(secs, $('#tm'), () => { flash('Switch'); show(); });
+    marks(); beep(520, .2, 'triangle');
+  };
+  $('#filt').onclick = e => { if (e.target.dataset.f) { filt = e.target.dataset.f; marks(); show(); } };
+  $('#len').onclick = e => { if (e.target.dataset.n) { secs = +e.target.dataset.n; store.set('posSecs', secs); marks(); } };
+  $('#draw').onclick = show;
+  $('#run').onclick = () => { running = !running; if (running) show(); else { clearInterval(iv); const t = $('#tm'); if (t) t.remove(); marks(); } };
+  $('#fav').onclick = () => {
+    if (!cur) return;
+    const f = favs(), i = f.indexOf(cur.n);
+    if (i < 0) f.push(cur.n); else f.splice(i, 1);
+    store.set('favPos', f); Object.keys(decks).forEach(k => delete decks[k]); marks();
+  };
+  pauseHook = () => { if (running) $('#run').click(); };
+  setSkip(show);
+  marks();
+}); }
+
+// ---------- make it yours ----------
+function gDateNight() {
+  const dn = store.get('dn', null);
+  const name = id => GAMES.find(g => g.id === id).name;
+  if (dn && dn.i >= dn.plan.length) {
+    store.set('dn', null);
+    shell('Date Night', `<div class="card pop">${photo('datenight')}<p style="margin:0 0 6px;font-weight:700">That's the night.</p><p class="small" style="margin:0">Phones down. Tell each other the best moment of the evening.</p></div>
+    <div class="row"><button class="btn" id="home">Back home</button></div>`);
+    $('#home').onclick = () => { location.hash = ''; };
+    return;
+  }
+  if (dn) {
+    shell('Date Night', `<div class="card pop" style="min-height:0">${photo('datenight')}<p style="margin:0;font-weight:700">Tonight's plan</p></div>
+    <ul class="list">${dn.plan.map((id, i) => `<li${i === dn.i ? ' style="border-color:var(--gold)"' : ''}>${i < dn.i ? `<span class="ico">${ART.tick}</span> ` : ''}<b>${esc(dn.names[i])}</b> &middot; ${esc(name(id))}</li>`).join('')}</ul>
+    <div class="row"><button class="btn ghost" id="new">Plan a new night</button><button class="btn" id="go">Resume stage ${dn.i + 1}</button></div>`);
+    $('#go').onclick = () => { location.hash = dn.plan[dn.i]; };
+    $('#new').onclick = () => { store.set('dn', null); gDateNight(); };
+    return;
+  }
+  let len = store.get('dnLen', 4), plan = [];
+  const stages = () => (len === 4 ? DN_STAGES : [DN_STAGES[0], DN_STAGES[2], DN_STAGES[3]]).map(([n, opts]) => {
+    // On Mild the after-dark stage sticks to the gentler games.
+    if (n === 'After dark' && maxHeat() === 0) opts = ['positions', 'slowburn'];
+    return [n, opts];
+  });
+  const build = () => { const used = []; plan = stages().map(([n, opts]) => { const free = opts.filter(o => !used.includes(o)); const g = pick(free.length ? free : opts); used.push(g); return g; }); };
+  const draw = () => {
+    const st = stages();
+    shell('Date Night', `<div class="card pop" style="min-height:0">${photo('datenight')}<p class="small" style="margin:0">The app runs your whole evening, warming up from flirty to after dark. A bar at the top of each game moves you to the next stage when you're ready.</p></div>
+    <div class="ptitle" style="margin-top:16px">How long</div><div class="seg" id="len"><button data-n="3">About 45 min</button><button data-n="4">About 75 min</button></div>
+    <ul class="list">${plan.map((id, i) => `<li style="display:flex;align-items:center;gap:8px"><span style="flex:1"><b>${esc(st[i][0])}</b> &middot; ${esc(name(id))}</span><button class="btn sm ghost" data-c="${i}" style="padding:6px 12px;font-size:13px">Change</button></li>`).join('')}</ul>
+    <div class="row"><button class="btn ghost" id="shuf">Shuffle</button><button class="btn hot" id="start">Start the night</button></div>`);
+    $('#len').querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.n === len));
+    $('#len').onclick = e => { if (e.target.dataset.n) { len = +e.target.dataset.n; store.set('dnLen', len); build(); draw(); } };
+    app.querySelector('.list').onclick = e => {
+      const i = e.target.dataset.c; if (i == null) return;
+      const opts = st[i][1]; plan[i] = opts[(opts.indexOf(plan[i]) + 1) % opts.length]; draw();
+    };
+    $('#shuf').onclick = () => { build(); draw(); };
+    $('#start').onclick = () => { store.set('dn', {plan, names: st.map(s => s[0]), i: 0}); location.hash = plan[0]; };
+  };
+  build(); draw();
+}
+
+function gStreak() {
+  const today = () => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); };
+  // Midday on day n, so a daylight-saving change can't push it into the wrong date.
+  const dateOf = (st, n) => new Date(st.start + (n - 1) * 864e5 + 432e5);
+  const wd = d => d.toLocaleDateString('en-AU', {weekday: 'long'});
+  let resetArm = false;
+  const draw = () => {
+    const st = store.get('streak', null);
+    if (!st) {
+      shell('Challenge Streaks', `<div class="card pop" style="min-height:0">${ART.calendar}<p class="small" style="margin:10px 0 0">One small dare a day for a week, building up to a planned night on day 7. A new dare unlocks each morning.</p></div>
+      ${STREAKS.map((s, i) => `<div class="panel" style="margin-top:12px"><div class="ptitle">${esc(s.n)}</div><p class="small" style="margin:0 0 10px">Day 1: ${esc(s.days[0])}</p><button class="btn${i ? ' hot' : ''}" data-t="${i}"${s.heat > maxHeat() ? ' disabled' : ''}>${s.heat > maxHeat() ? 'Turn up the heat dial to unlock' : 'Start today'}</button></div>`).join('')}`);
+      app.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { store.set('streak', {t: +b.dataset.t, start: today(), done: []}); draw(); });
+      return;
+    }
+    const s = STREAKS[st.t], now = Math.round((today() - st.start) / 864e5) + 1;
+    const all = st.done.length >= 7;
+    shell('Challenge Streaks', `<div class="who"><b>${esc(s.n)}</b> &middot; ${st.done.length} of 7 done</div><div class="meter"><div style="width:${st.done.length / 7 * 100}%"></div></div>
+    ${s.days.map((txt, i) => {
+      const n = i + 1, done = st.done.includes(n), open = n <= now;
+      return `<div class="panel day${open ? '' : ' locked'}"><span class="ico">${done ? ART.tick : open ? ART.heart : ART.lock}</span><div class="txt"><div class="ptitle" style="margin:0 0 4px">Day ${n} &middot; ${wd(dateOf(st, n))}</div>${open ? `<div style="font-size:15px">${esc(txt)}</div>` : `<div class="small" style="font-size:14px">Unlocks ${wd(dateOf(st, n))}</div>`}</div>${open && !done ? `<button class="btn sm" data-d="${n}">Done</button>` : ''}</div>`;
+    }).join('')}
+    ${all ? `<div class="card pop" style="min-height:0">${ART.fire}<p style="margin:10px 0 0;font-weight:700">Streak complete. Seven for seven.</p></div>` : ''}
+    <div class="row"><button class="btn ghost" id="reset">${resetArm ? 'Tap again to start over' : all ? 'Start another week' : 'Start over'}</button></div>`);
+    app.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { st.done.push(+b.dataset.d); store.set('streak', st); flash('Done'); beep(880, .2, 'triangle'); draw(); });
+    $('#reset').onclick = () => { if (resetArm || all) { store.set('streak', null); resetArm = false; } else resetArm = true; draw(); };
+  };
+  draw();
+}
+
+function gMine() {
+  const DECKS = [['truth', 'Truth', ['Flirty','Spicy','Filthy']], ['dare', 'Dare', ['Flirty','Spicy','Filthy']], ['kink', 'Kink challenge', ['Tease','Bold','Wild']], ['power', 'Power order', null], ['tease', 'Tease move', ['Slow burn','Heated','Merciless']]];
+  let d = 'dare', h = 0;
+  const draw = () => {
+    const D = DECKS.find(x => x[0] === d), all = store.get('custom', []);
+    const mine = all.map((c, i) => [c, i]).filter(([c]) => c.d === d);
+    shell('My Cards', `<div class="chiprow" id="decks">${DECKS.map(x => `<button data-d="${x[0]}"${x[0] === d ? ' class="on"' : ''}>${x[1]}</button>`).join('')}</div>
+    ${D[2] ? `<div class="seg" id="lvl">${D[2].map((l, i) => `<button data-h="${i}"${i === h ? ' class="on"' : ''}>${l}</button>`).join('')}</div>` : ''}
+    <form id="addc"><textarea id="txt" maxlength="200" placeholder="Write your ${D[1].toLowerCase()}..."></textarea><div class="row"><button class="btn">Add to the deck</button></div></form>
+    <h3 class="section" style="font-size:20px">Your ${D[1].toLowerCase()} cards</h3>
+    <ul class="list" id="list">${mine.length ? mine.map(([c, i]) => `<li style="display:flex;gap:8px;align-items:center"><span style="flex:1">${esc(c.t)}${D[2] ? ` <span class="small" style="font-size:12px">&middot; ${D[2][c.h]}</span>` : ''}</span><button class="btn sm ghost" data-x="${i}" style="padding:6px 12px;font-size:13px">Remove</button></li>`).join('') : '<li class="small">None yet.</li>'}</ul>
+    <div class="note">Saved on this phone only. Your cards get shuffled into the matching deck, and your limits still apply to them.</div>`);
+    $('#decks').onclick = e => { if (e.target.dataset.d) { d = e.target.dataset.d; draw(); } };
+    if (D[2]) $('#lvl').onclick = e => { if (e.target.dataset.h) { h = +e.target.dataset.h; draw(); } };
+    $('#addc').onsubmit = e => {
+      e.preventDefault(); const t = $('#txt').value.trim(); if (!t) return;
+      all.push({d, h: D[2] ? h : 0, t}); store.set('custom', all); flash('Added'); draw();
+    };
+    $('#list').onclick = e => { const i = e.target.dataset.x; if (i != null) { all.splice(+i, 1); store.set('custom', all); draw(); } };
+  };
+  draw();
+}
 
 // ---------- updates ----------
 const hasNN = () => typeof window.NN !== 'undefined';

@@ -2,7 +2,18 @@
 
 An 18+ party game suite for Android. Strictly for consenting adults.
 
-Thirteen games: Truth or Dare, Dirty Dice, Spin the Bottle, Never Have I Ever, Strip Trivia, Would You Rather and Dirty Mind, plus an after-dark kink section with Kink Challenges, Yes No Maybe, Power Play, Hotwife Roller, Fantasy Builder and Tease Timer.
+Nineteen games: Truth or Dare, Dirty Dice, Spin the Bottle, Never Have I Ever, Strip Trivia, Would You Rather and Dirty Mind. For couples there's Love Map, Massage Deck and Sensation Roulette. The after-dark kink section has Kink Challenges, Yes No Maybe, Power Play, Hotwife Roller, Fantasy Builder, Tease Timer, Slow Burn, Scene Generator and Positions.
+
+Also included:
+
+- **Date Night** chains three or four games into one planned evening
+- **Challenge Streaks** give you a dare a day for a week, building up to a planned night
+- **My Cards** lets you write your own truths, dares, kink challenges, power orders and tease moves (stored on the phone only)
+- **Heat dial** on the home screen caps every tiered deck at Mild, Spicy or Wild
+- **Limits**: anything either partner answers No to in Yes, No, Maybe is hidden from every deck
+- **Swap card** and **Pause** buttons on every game screen
+
+Photos are from [Unsplash](https://unsplash.com) under the Unsplash Licence (see `app/assets/img/CREDITS.txt`). Position illustrations are original SVG.
 
 ## Install
 
